@@ -1,166 +1,209 @@
-<div class="client-modal-overlay" (click)="closeClientModal()">
-  <div class="client-modal" (click)="$event.stopPropagation()">
-    <div class="client-modal__header">
-      <div>
-        <h2>Registrar Nuevo Cliente</h2>
-        <p>Completa la información del cliente.</p>
-      </div>
-      <button type="button" class="client-modal__close" (click)="closeClientModal()">
-        <i class="pi pi-times"></i>
+<div class="client-page">
+  <header class="page-header">
+    <div class="header-content">
+      <button type="button" class="back-button" (click)="cancel()">
+        <i class="pi pi-arrow-left"></i>
       </button>
+
+      <div>
+        <h1>
+          {{ isEditMode ? 'Editar Cliente' : 'Registrar Nuevo Cliente' }}
+        </h1>
+
+        <p>
+          {{
+            isEditMode
+              ? 'Actualiza la información del cliente.'
+              : 'Completa la información del cliente.'
+          }}
+        </p>
+      </div>
     </div>
+  </header>
+
+  <main class="page-content">
+    @if (saveError) {
+      <div class="error-alert">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ saveError }}</span>
+      </div>
+    }
 
     <form [formGroup]="clientForm" (ngSubmit)="submitClient()">
-      <div class="client-modal__body">
-        <div class="client-modal__section">
-          <h3>Datos de contacto</h3>
+      <section class="form-card">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="pi pi-user"></i>
+          </div>
 
-          <div class="client-form-grid">
-            <div class="client-form-field">
-              <label for="nombres">Nombres <span>*</span></label>
-              <input
-                id="nombres"
-                type="text"
-                formControlName="nombres"
-                [class.input-invalid]="isInvalid('nombres')"
-                placeholder="Ingresa los nombres"
-              />
-              @if (isInvalid('nombres')) {
-                <small class="field-error">{{ getErrorMessage('nombres') }}</small>
-              }
-            </div>
-
-            <div class="client-form-field">
-              <label for="apellidos">Apellidos <span>*</span></label>
-              <input
-                id="apellidos"
-                type="text"
-                formControlName="apellidos"
-                [class.input-invalid]="isInvalid('apellidos')"
-                placeholder="Ingresa los apellidos"
-              />
-              @if (isInvalid('apellidos')) {
-                <small class="field-error">{{ getErrorMessage('apellidos') }}</small>
-              }
-            </div>
-
-            <div class="client-form-field">
-              <label for="tipoDocumento">Tipo de documento <span>*</span></label>
-              <select id="tipoDocumento" formControlName="tipoDocumento">
-                <option value="DNI">DNI</option>
-                <option value="RUC">RUC</option>
-                <option value="CE">CE</option>
-              </select>
-            </div>
-
-            <div class="client-form-field">
-              <label for="numeroDocumento">N.º de documento <span>*</span></label>
-              <input
-                id="numeroDocumento"
-                type="text"
-                formControlName="numeroDocumento"
-                [class.input-invalid]="isInvalid('numeroDocumento')"
-                placeholder="Ingresa el documento"
-              />
-              @if (isInvalid('numeroDocumento')) {
-                <small class="field-error">{{ getErrorMessage('numeroDocumento') }}</small>
-              }
-            </div>
-
-            <div class="client-form-field">
-              <label for="email">Correo electrónico <span>*</span></label>
-              <input
-                id="email"
-                type="email"
-                formControlName="email"
-                [class.input-invalid]="isInvalid('email')"
-                placeholder="correo@ejemplo.com"
-              />
-              @if (isInvalid('email')) {
-                <small class="field-error">{{ getErrorMessage('email') }}</small>
-              }
-            </div>
-
-            <div class="client-form-field">
-              <label for="telefono">Teléfono <span>*</span></label>
-              <input
-                id="telefono"
-                type="tel"
-                formControlName="telefono"
-                [class.input-invalid]="isInvalid('telefono')"
-                placeholder="999 999 999"
-              />
-              @if (isInvalid('telefono')) {
-                <small class="field-error">{{ getErrorMessage('telefono') }}</small>
-              }
-            </div>
-
-            <div class="client-form-field client-form-field--full">
-              <label for="direccion">Dirección <span>*</span></label>
-              <input
-                id="direccion"
-                type="text"
-                formControlName="direccion"
-                [class.input-invalid]="isInvalid('direccion')"
-                placeholder="Ingresa la dirección"
-              />
-              @if (isInvalid('direccion')) {
-                <small class="field-error">{{ getErrorMessage('direccion') }}</small>
-              }
-            </div>
+          <div>
+            <h2>Datos de contacto</h2>
+            <p>Información principal del cliente.</p>
           </div>
         </div>
 
-        <div class="client-modal__section">
-          <h3>Datos fiscales</h3>
+        <div class="form-grid three-columns">
+          <div class="form-field">
+            <label for="nombres"> Nombres <span>*</span> </label>
 
-          <div class="client-form-grid">
-            <div class="client-form-field client-form-field--full">
-              <label for="razonSocial">Razón social</label>
-              <input
-                id="razonSocial"
-                type="text"
-                formControlName="razonSocial"
-                placeholder="Ingresa la razón social si corresponde"
-              />
-            </div>
+            <input
+              id="nombres"
+              type="text"
+              formControlName="nombres"
+              placeholder="Ingresa los nombres"
+              class="input-field"
+              [class.input-error]="isInvalid('nombres')"
+            />
+
+            @if (isInvalid('nombres')) {
+              <small>{{ getErrorMessage('nombres') }}</small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="apellidos"> Apellidos <span>*</span> </label>
+
+            <input
+              id="apellidos"
+              type="text"
+              formControlName="apellidos"
+              placeholder="Ingresa los apellidos"
+              class="input-field"
+              [class.input-error]="isInvalid('apellidos')"
+            />
+
+            @if (isInvalid('apellidos')) {
+              <small>{{ getErrorMessage('apellidos') }}</small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="tipoDocumento"> Tipo de documento <span>*</span> </label>
+
+            <select id="tipoDocumento" formControlName="tipoDocumento" class="input-field">
+              <option value="DNI">DNI</option>
+              <option value="RUC">RUC</option>
+              <option value="CE">CE</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="numeroDocumento"> N.° de documento <span>*</span> </label>
+
+            <input
+              id="numeroDocumento"
+              type="text"
+              formControlName="numeroDocumento"
+              placeholder="Ingresa el documento"
+              class="input-field"
+              [class.input-error]="isInvalid('numeroDocumento')"
+            />
+
+            @if (isInvalid('numeroDocumento')) {
+              <small>{{ getErrorMessage('numeroDocumento') }}</small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="email"> Correo electrónico <span>*</span> </label>
+
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="correo@ejemplo.com"
+              class="input-field"
+              [class.input-error]="isInvalid('email')"
+            />
+
+            @if (isInvalid('email')) {
+              <small>{{ getErrorMessage('email') }}</small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="telefono"> Teléfono <span>*</span> </label>
+
+            <input
+              id="telefono"
+              type="text"
+              formControlName="telefono"
+              placeholder="999999999"
+              class="input-field"
+              [class.input-error]="isInvalid('telefono')"
+            />
+
+            @if (isInvalid('telefono')) {
+              <small>{{ getErrorMessage('telefono') }}</small>
+            }
+          </div>
+
+          <div class="form-field full-width">
+            <label for="direccion"> Dirección <span>*</span> </label>
+
+            <input
+              id="direccion"
+              type="text"
+              formControlName="direccion"
+              placeholder="Ingresa la dirección"
+              class="input-field"
+              [class.input-error]="isInvalid('direccion')"
+            />
+
+            @if (isInvalid('direccion')) {
+              <small>{{ getErrorMessage('direccion') }}</small>
+            }
+          </div>
+        </div>
+      </section>
+
+      <section class="form-card">
+        <div class="section-header">
+          <div class="section-icon">
+            <i class="pi pi-building"></i>
+          </div>
+
+          <div>
+            <h2>Datos fiscales</h2>
+            <p>Información fiscal del cliente, si corresponde.</p>
           </div>
         </div>
 
-        <div class="client-consent">
-          <label>
-            <input type="checkbox" formControlName="consentimientoDatos" />
-            <span>
-              Autorizo el tratamiento de mis datos personales de acuerdo con la Ley 29733.
-            </span>
-          </label>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="razonSocial"> Razón social </label>
 
-          @if (isInvalid('consentimientoDatos')) {
-            <small class="field-error">{{ getErrorMessage('consentimientoDatos') }}</small>
-          }
+            <input
+              id="razonSocial"
+              type="text"
+              formControlName="razonSocial"
+              placeholder="Ingresa la razón social si corresponde"
+              class="input-field"
+              [class.input-error]="isInvalid('razonSocial')"
+            />
+
+            @if (isInvalid('razonSocial')) {
+              <small>{{ getErrorMessage('razonSocial') }}</small>
+            }
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="client-modal__footer">
-        <button
-          type="button"
-          class="cancel-button"
-          [disabled]="isSaving"
-          (click)="closeClientModal()"
-        >
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" [disabled]="isSaving" (click)="cancel()">
           Cancelar
         </button>
 
-        <button type="submit" class="save-button" [disabled]="clientForm.invalid || isSaving">
+        <button type="submit" class="btn-save" [disabled]="clientForm.invalid || isSaving">
           @if (isSaving) {
             <i class="pi pi-spin pi-spinner"></i>
-            <span>Guardando...</span>
+            {{ isEditMode ? 'Actualizando...' : 'Guardando...' }}
           } @else {
             <i class="pi pi-check"></i>
-            <span>Guardar cliente</span>
+            {{ isEditMode ? 'Actualizar cliente' : 'Guardar cliente' }}
           }
         </button>
       </div>
     </form>
-  </div>
+  </main>
 </div>

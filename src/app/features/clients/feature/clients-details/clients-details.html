@@ -1,3 +1,248 @@
-<div class="clients-details">
-  <h2>Clientes - Detalles</h2>
+<div class="client-details-page">
+  <header class="page-header">
+    <div class="page-header__content">
+      <button type="button" class="back-button" title="Volver a clientes" (click)="goBack()">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+
+      <div>
+        <h1>Detalle del cliente</h1>
+        <p>Consulta la información y actividad del cliente.</p>
+      </div>
+    </div>
+
+    @if (client) {
+      <button type="button" class="edit-button" (click)="editClient()">
+        <i class="pi pi-pencil"></i>
+        <span>Editar cliente</span>
+      </button>
+    }
+  </header>
+
+  <main class="page-content">
+    @if (isLoading) {
+      <div class="loading-state">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Cargando información del cliente...</span>
+      </div>
+    } @else if (loadError) {
+      <section class="state-card">
+        <div class="state-card__icon state-card__icon--error">
+          <i class="pi pi-exclamation-triangle"></i>
+        </div>
+        <h2>No se pudo cargar el cliente</h2>
+        <p>Verifica la conexión con el servidor e inténtalo nuevamente.</p>
+        <button type="button" class="retry-button" (click)="goBack()">Volver a clientes</button>
+      </section>
+    } @else if (client) {
+      <section class="client-summary">
+        <div class="client-avatar">
+          {{ initials }}
+        </div>
+
+        <div class="client-summary__info">
+          <div class="client-summary__name">
+            <h2>{{ fullName }}</h2>
+
+            <span [class]="client.activo ? 'chip-success' : 'chip-inactive'">
+              {{ client.activo ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+
+          @if (client.razonSocial) {
+            <p class="client-summary__company">
+              {{ client.razonSocial }}
+            </p>
+          }
+
+          <p class="client-summary__document">
+            {{ client.tipoDocumento }} {{ client.numeroDocumento }}
+          </p>
+        </div>
+      </section>
+
+      <section class="details-grid">
+        <article class="details-card">
+          <div class="details-card__header">
+            <div class="details-card__icon">
+              <i class="pi pi-user"></i>
+            </div>
+            <div>
+              <h3>Información personal</h3>
+              <p>Datos principales del cliente</p>
+            </div>
+          </div>
+
+          <div class="details-list">
+            <div class="detail-item">
+              <span class="detail-item__label">Nombres</span>
+              <span class="detail-item__value">{{ client.nombres || '-' }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-item__label">Apellidos</span>
+              <span class="detail-item__value">{{ client.apellidos || '-' }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-item__label">Tipo de documento</span>
+              <span class="detail-item__value">{{ client.tipoDocumento || '-' }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-item__label">Número de documento</span>
+              <span class="detail-item__value">{{ client.numeroDocumento || '-' }}</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="details-card">
+          <div class="details-card__header">
+            <div class="details-card__icon">
+              <i class="pi pi-phone"></i>
+            </div>
+            <div>
+              <h3>Información de contacto</h3>
+              <p>Medios de comunicación</p>
+            </div>
+          </div>
+
+          <div class="details-list">
+            <div class="detail-item">
+              <span class="detail-item__label">Teléfono</span>
+              <span class="detail-item__value">{{ client.telefono || '-' }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-item__label">Correo electrónico</span>
+              <span class="detail-item__value">{{ client.email || '-' }}</span>
+            </div>
+
+            <div class="detail-item detail-item--full">
+              <span class="detail-item__label">Dirección</span>
+              <span class="detail-item__value">{{ client.direccion || '-' }}</span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="profitability-section">
+        <div class="section-header">
+          <div>
+            <h2>Rentabilidad del cliente</h2>
+            <p>Resumen financiero de sus órdenes completadas.</p>
+          </div>
+        </div>
+
+        @if (profitability) {
+          <div class="profitability-grid">
+            <article class="metric-card">
+              <div class="metric-card__icon metric-card__icon--primary">
+                <i class="pi pi-wallet"></i>
+              </div>
+              <div class="metric-card__content">
+                <span>Total facturado</span>
+                <strong>{{ formatCurrency(profitability.totalFacturado) }}</strong>
+              </div>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-card__icon metric-card__icon--warning">
+                <i class="pi pi-money-bill"></i>
+              </div>
+              <div class="metric-card__content">
+                <span>Total costos</span>
+                <strong>{{ formatCurrency(profitability.totalCostos) }}</strong>
+              </div>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-card__icon metric-card__icon--success">
+                <i class="pi pi-chart-line"></i>
+              </div>
+              <div class="metric-card__content">
+                <span>Margen</span>
+                <strong>{{ formatCurrency(profitability.margen) }}</strong>
+              </div>
+            </article>
+
+            <article class="metric-card">
+              <div class="metric-card__icon metric-card__icon--info">
+                <i class="pi pi-file-check"></i>
+              </div>
+              <div class="metric-card__content">
+                <span>Órdenes completadas</span>
+                <strong>{{ profitability.ordenesCompletadas }}</strong>
+              </div>
+            </article>
+          </div>
+        } @else {
+          <div class="section-empty">
+            <i class="pi pi-chart-bar"></i>
+            <span>No hay información de rentabilidad disponible.</span>
+          </div>
+        }
+      </section>
+
+      <section class="history-section">
+        <div class="section-header">
+          <div>
+            <h2>Historial de trabajos</h2>
+            <p>Trabajos realizados para este cliente.</p>
+          </div>
+        </div>
+
+        @if (workHistory.length > 0) {
+          <div class="history-card">
+            <div class="history-table-wrapper">
+              <table class="history-table">
+                <thead>
+                  <tr>
+                    <th>Orden</th>
+                    <th>Descripción</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @for (work of workHistory; track work.id) {
+                    <tr>
+                      <td>
+                        <strong>{{ work.ordenTrabajoId }}</strong>
+                      </td>
+
+                      <td>
+                        <span class="work-description">
+                          {{ work.descripcion || '-' }}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span [class]="getWorkStatusClass(work.estado)">
+                          {{ work.estado || 'Sin estado' }}
+                        </span>
+                      </td>
+
+                      <td>
+                        {{ formatDate(work.fechaCreacion) }}
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        } @else {
+          <div class="section-empty section-empty--card">
+            <div class="section-empty__icon">
+              <i class="pi pi-history"></i>
+            </div>
+            <h3>No hay trabajos registrados</h3>
+            <p>El historial de trabajos del cliente aparecerá aquí.</p>
+          </div>
+        }
+      </section>
+    }
+  </main>
 </div>

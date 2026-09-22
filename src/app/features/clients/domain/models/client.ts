@@ -1,16 +1,12 @@
 export interface Client {
   id: string;
-  tipoDocumento: 'DNI' | 'RUC' | 'CE';
+  tipoDocumento: string;
   numeroDocumento: string;
   nombres: string;
   apellidos: string;
   razonSocial: string;
-  email: string;
-  telefono: string;
   direccion: string;
-  consentimientoDatos: boolean;
-  fechaConsentimiento: string | null;
+  telefono: string;
+  email: string;
   activo: boolean;
-  createAt?: string;
-  updateAt?: string;
 }
