@@ -22,7 +22,9 @@ export interface WorkHistory {
   fechaCreacion: string;
 }
 
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class ClientHttpService implements ClientRepository {
   private readonly apiUrl = `${environment.apiUrl}/clientes`;
 
