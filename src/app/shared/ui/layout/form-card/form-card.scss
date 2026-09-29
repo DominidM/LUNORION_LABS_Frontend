@@ -1,0 +1,58 @@
+:host {
+  display: block;
+  width: 100%;
+  margin-bottom: var(--spacing-md);
+}
+
+.form-card {
+  width: 100%;
+  background-color: var(--surface-container-lowest);
+  border: var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--elevation-1);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--surface-container-low);
+  border-bottom: var(--border-subtle);
+}
+
+.section-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background-color: var(--secondary-container);
+  color: var(--primary);
+  font-size: 18px;
+}
+
+.section-titles {
+  display: flex;
+  flex-direction: column;
+
+  h2 {
+    margin: 0;
+    font: var(--text-headline-md);
+    color: var(--on-surface);
+  }
+
+  p {
+    margin: 2px 0 0;
+    color: var(--on-surface-variant);
+    font: var(--text-body-md);
+  }
+}
+
+.section-body {
+  padding: var(--spacing-lg);
+  box-sizing: border-box;
+}

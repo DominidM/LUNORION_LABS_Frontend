@@ -20,6 +20,7 @@ interface ClientRequest {
   direccion: string;
   telefono: string;
   email: string;
+  consentimientoDatos: boolean;
 }
 
 @Component({
@@ -199,13 +200,14 @@ export class ClientsForm implements OnInit {
 
     const clientData: ClientRequest = {
       tipoDocumento: formValue.tipoDocumento ?? 'DNI',
-      numeroDocumento: formValue.numeroDocumento ?? '',
+      numeroDocumento: formValue.numeroDocumento?.trim() ?? '',
       nombres: formValue.nombres?.trim() ?? '',
       apellidos: formValue.apellidos?.trim() ?? '',
       razonSocial: formValue.razonSocial?.trim() ?? '',
       direccion: formValue.direccion?.trim() ?? '',
-      telefono: formValue.telefono ?? '',
-      email: formValue.email?.trim() ?? ''
+      telefono: formValue.telefono?.trim() ?? '',
+      email: formValue.email?.trim() ?? '',
+      consentimientoDatos: true
     };
 
     const request = this.isEditMode
@@ -217,11 +219,11 @@ export class ClientsForm implements OnInit {
         this.isSaving = false;
         this.router.navigate(['/dashboard/clients']);
       },
-      error: () => {
+      error: (err) => {
         this.isSaving = false;
-        this.saveError = this.isEditMode
+        this.saveError = err?.error?.message || (this.isEditMode
           ? 'No se pudo actualizar el cliente. Intenta nuevamente.'
-          : 'No se pudo registrar el cliente. Intenta nuevamente.';
+          : 'No se pudo registrar el cliente. Intenta nuevamente.');
       }
     });
   }

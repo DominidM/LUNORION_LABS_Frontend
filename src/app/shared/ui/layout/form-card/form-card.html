@@ -1,0 +1,16 @@
+<section class="form-card">
+  <div class="section-header">
+    <div class="section-icon">
+      <i [class]="icon()"></i>
+    </div>
+    <div class="section-titles">
+      <h2>{{ title() }}</h2>
+      @if (subtitle()) {
+        <p>{{ subtitle() }}</p>
+      }
+    </div>
+  </div>
+  <div class="section-body">
+    <ng-content></ng-content>
+  </div>
+</section>
