@@ -1,23 +1,19 @@
 <div class="client-details-page">
-  <header class="page-header">
-    <div class="page-header__content">
-      <button type="button" class="back-button" title="Volver a clientes" (click)="goBack()">
-        <i class="pi pi-arrow-left"></i>
-      </button>
-
-      <div>
-        <h1>Detalle del cliente</h1>
-        <p>Consulta la información y actividad del cliente.</p>
-      </div>
+  <app-page-header
+    title="Detalle del cliente"
+    subtitle="Consulta la información y actividad del cliente."
+    [showBackButton]="true"
+    (back)="goBack()"
+  >
+    <div actions>
+      @if (client) {
+        <button type="button" class="edit-button" (click)="editClient()">
+          <i class="pi pi-pencil"></i>
+          <span>Editar cliente</span>
+        </button>
+      }
     </div>
-
-    @if (client) {
-      <button type="button" class="edit-button" (click)="editClient()">
-        <i class="pi pi-pencil"></i>
-        <span>Editar cliente</span>
-      </button>
-    }
-  </header>
+  </app-page-header>
 
   <main class="page-content">
     @if (isLoading) {

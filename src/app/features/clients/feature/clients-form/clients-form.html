@@ -1,25 +1,10 @@
 <div class="client-page">
-  <header class="page-header">
-    <div class="header-content">
-      <button type="button" class="back-button" (click)="cancel()">
-        <i class="pi pi-arrow-left"></i>
-      </button>
-
-      <div>
-        <h1>
-          {{ isEditMode ? 'Editar Cliente' : 'Registrar Nuevo Cliente' }}
-        </h1>
-
-        <p>
-          {{
-            isEditMode
-              ? 'Actualiza la información del cliente.'
-              : 'Completa la información del cliente.'
-          }}
-        </p>
-      </div>
-    </div>
-  </header>
+  <app-page-header
+    [title]="isEditMode ? 'Editar Cliente' : 'Registrar Nuevo Cliente'"
+    [subtitle]="isEditMode ? 'Actualiza la información del cliente.' : 'Completa la información del cliente.'"
+    [showBackButton]="true"
+    (back)="cancel()"
+  ></app-page-header>
 
   <main class="page-content">
     @if (saveError) {

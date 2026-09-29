@@ -1,15 +1,18 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { PageHeader } from '../../../../shared/ui/layout/page-header/page-header';
 import { ClientHttpService, ClientProfitability, WorkHistory } from '../../data-access/api/client-http.service';
 import { Client } from '../../domain/models/client';
 
 @Component({
   selector: 'app-clients-details',
   standalone: true,
+  imports: [CommonModule, PageHeader],
   templateUrl: './clients-details.html',
   styleUrl: './clients-details.scss'
 })
-export class ClientsDetails {
+export class ClientsDetails implements OnInit {
   private clientService = inject(ClientHttpService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -22,7 +25,7 @@ export class ClientsDetails {
   isLoading = true;
   loadError = false;
 
-  constructor() {
+  ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id) {
@@ -83,13 +86,11 @@ export class ClientsDetails {
 
   get fullName(): string {
     if (!this.client) return '';
-
     return `${this.client.nombres} ${this.client.apellidos}`.trim();
   }
 
   get initials(): string {
     if (!this.client) return '';
-
     const names = `${this.client.nombres} ${this.client.apellidos}`
       .trim()
       .split(/\s+/);
@@ -109,7 +110,6 @@ export class ClientsDetails {
 
   formatDate(date: string): string {
     if (!date) return '-';
-
     return new Intl.DateTimeFormat('es-PE', {
       day: '2-digit',
       month: '2-digit',
@@ -118,7 +118,7 @@ export class ClientsDetails {
   }
 
   getWorkStatusClass(status: string): string {
-    const normalizedStatus = status.toLowerCase();
+    const normalizedStatus = (status || '').toLowerCase();
 
     if (
       normalizedStatus.includes('complet') ||
@@ -151,7 +151,6 @@ export class ClientsDetails {
 
   editClient(): void {
     if (!this.client) return;
-
     this.router.navigate(['/dashboard/clients', this.client.id, 'edit']);
   }
 }

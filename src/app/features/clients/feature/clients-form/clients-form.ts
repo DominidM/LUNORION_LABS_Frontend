@@ -7,6 +7,8 @@ import {
   AbstractControl,
   ValidationErrors
 } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { PageHeader } from '../../../../shared/ui/layout/page-header/page-header';
 import { ClientHttpService } from '../../data-access/api/client-http.service';
 
 interface ClientRequest {
@@ -23,11 +25,10 @@ interface ClientRequest {
 @Component({
   selector: 'app-clients-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PageHeader],
   templateUrl: './clients-form.html',
   styleUrl: './clients-form.scss'
 })
-
 export class ClientsForm implements OnInit {
   private fb = inject(FormBuilder);
   private clientService = inject(ClientHttpService);

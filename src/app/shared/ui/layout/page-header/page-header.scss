@@ -55,7 +55,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-container) 50%, var(--surface-container-lowest) 100%);
+  background-color: var(--primary);
   border-bottom-left-radius: var(--radius-lg);
   border-bottom-right-radius: var(--radius-lg);
   pointer-events: none;
@@ -64,23 +64,32 @@
 .back-btn {
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-default);
-  border: var(--border-subtle);
-  background-color: var(--surface-container-lowest);
-  color: var(--on-surface);
+  border-radius: var(--radius-full);
+  border: none; 
+  outline: none;
+  background-color: var(--surface-container-high); 
+  color: var(--on-surface-variant); 
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
-
-  &:hover {
-    background-color: var(--surface-container);
-    color: var(--primary);
-  }
+  transition: all 0.2s ease;
 
   i {
     font-size: 16px;
+    transition: transform 0.15s ease;
+  }
+
+  &:hover {
+    background-color: var(--primary-fixed);
+    color: var(--primary);
+    i {
+      transform: translateX(-2px);
+    }
+  }
+
+  &:active {
+    background-color: var(--primary-fixed-dim);
   }
 }
 
