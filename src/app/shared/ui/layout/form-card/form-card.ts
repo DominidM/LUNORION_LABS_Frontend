@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './form-card.html',
   styleUrl: './form-card.scss'
 })
-export class FormSectionCardComponent {
+export class FormCard {
   title = input.required<string>();
   subtitle = input<string>('');
   icon = input<string>('pi pi-info-circle');

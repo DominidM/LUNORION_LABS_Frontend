@@ -190,11 +190,112 @@ export class ClientsList {
     this.router.navigate(['/dashboard/clients', id, 'edit']);
   }
 
-  exportToPdf(): void {
-    console.log('Exportar a PDF');
+  exportToXml(): void {
+    const data = this.filteredClients;
+    if (!data || data.length === 0) return;
+
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<clientes>\n';
+    data.forEach(client => {
+      const vehiculosCount = (client as unknown as { totalVehiculos?: number })?.totalVehiculos ?? 0;
+      xml += '  <cliente>\n';
+      xml += `    <id>${client.id}</id>\n`;
+      xml += `    <nombres><![CDATA[${client.nombres}]]></nombres>\n`;
+      xml += `    <apellidos><![CDATA[${client.apellidos}]]></apellidos>\n`;
+      xml += `    <razonSocial><![CDATA[${client.razonSocial || ''}]]></razonSocial>\n`;
+      xml += `    <tipoDocumento>${client.tipoDocumento}</tipoDocumento>\n`;
+      xml += `    <numeroDocumento>${client.numeroDocumento}</numeroDocumento>\n`;
+      xml += `    <telefono>${client.telefono || ''}</telefono>\n`;
+      xml += `    <email>${client.email || ''}</email>\n`;
+      xml += `    <vehiculos>${vehiculosCount}</vehiculos>\n`;
+      xml += `    <estado>${client.activo ? 'ACTIVO' : 'INACTIVO'}</estado>\n`;
+      xml += '  </cliente>\n';
+    });
+    xml += '</clientes>';
+
+    const blob = new Blob([xml], { type: 'application/xml;charset=utf-8;' });
+    this.downloadFile(blob, `reporte_clientes_${this.getTimestamp()}.xml`);
   }
 
-  exportToXml(): void {
-    console.log('Exportar a XML');
+  exportToPdf(): void {
+    const data = this.filteredClients;
+    if (!data || data.length === 0) return;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const rowsHtml = data.map(c => {
+      const vehiculosCount = (c as unknown as { totalVehiculos?: number })?.totalVehiculos ?? 0;
+      return `
+        <tr>
+          <td>${c.nombres} ${c.apellidos}</td>
+          <td>${c.tipoDocumento} ${c.numeroDocumento}</td>
+          <td>${c.telefono || '-'}</td>
+          <td>${c.email || '-'}</td>
+          <td style="text-align:center;">${vehiculosCount}</td>
+          <td style="text-align:center;">${c.activo ? 'Activo' : 'Inactivo'}</td>
+        </tr>
+      `;
+    }).join('');
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Reporte de Clientes - LUNORION LABS</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 24px; color: #1c1b20; }
+            h2 { margin-bottom: 4px; color: #4f388a; }
+            p { margin-top: 0; font-size: 13px; color: #494551; }
+            table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+            th { background: #f7f2fa; border-bottom: 2px solid #cbc4d2; padding: 10px; text-align: left; }
+            td { border-bottom: 1px solid #e6e1e9; padding: 10px; }
+            @media print {
+              body { margin: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          <h2>Reporte de Clientes</h2>
+          <p>Generado el: ${new Date().toLocaleString('es-PE')} | Total registros: ${data.length}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Documento</th>
+                <th>Teléfono</th>
+                <th>Email</th>
+                <th style="text-align:center;">Vehículos</th>
+                <th style="text-align:center;">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `);
+
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
+  }
+
+  private downloadFile(blob: Blob, filename: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  }
+
+  private getTimestamp(): string {
+    return new Date().toISOString().slice(0, 10);
   }
 }

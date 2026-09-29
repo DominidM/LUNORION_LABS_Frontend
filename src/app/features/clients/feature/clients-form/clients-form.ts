@@ -9,24 +9,19 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { PageHeader } from '../../../../shared/ui/layout/page-header/page-header';
+import { FormCard } from '../../../../shared/ui/layout/form-card/form-card';
 import { ClientHttpService } from '../../data-access/api/client-http.service';
-
-interface ClientRequest {
-  tipoDocumento: string;
-  numeroDocumento: string;
-  nombres: string;
-  apellidos: string;
-  razonSocial: string;
-  direccion: string;
-  telefono: string;
-  email: string;
-  consentimientoDatos: boolean;
-}
+import { ClientRequest } from '../../domain/ports/client-repository';
 
 @Component({
   selector: 'app-clients-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, PageHeader],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    PageHeader,
+    FormCard
+  ],
   templateUrl: './clients-form.html',
   styleUrl: './clients-form.scss'
 })
@@ -98,7 +93,6 @@ export class ClientsForm implements OnInit {
     this.clientForm.get('tipoDocumento')?.valueChanges.subscribe(() => {
       this.updateDocumentValidation();
     });
-
     this.updateDocumentValidation();
   }
 
@@ -121,12 +115,11 @@ export class ClientsForm implements OnInit {
           apellidos: client.apellidos,
           tipoDocumento: client.tipoDocumento,
           numeroDocumento: client.numeroDocumento,
-          razonSocial: client.razonSocial,
+          razonSocial: client.razonSocial ?? '',
           direccion: client.direccion,
           telefono: client.telefono,
           email: client.email
         });
-
         this.updateDocumentValidation();
       },
       error: () => {
@@ -137,11 +130,7 @@ export class ClientsForm implements OnInit {
 
   private onlyLettersValidator(control: AbstractControl): ValidationErrors | null {
     const value = control.value?.trim();
-
-    if (!value) {
-      return null;
-    }
-
+    if (!value) return null;
     return /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/.test(value)
       ? null
       : { onlyLetters: true };
@@ -150,28 +139,15 @@ export class ClientsForm implements OnInit {
   private updateDocumentValidation(): void {
     const type = this.clientForm.get('tipoDocumento')?.value;
     const control = this.clientForm.get('numeroDocumento');
-
-    if (!control) {
-      return;
-    }
+    if (!control) return;
 
     control.clearValidators();
 
     if (type === 'DNI') {
-      control.setValidators([
-        Validators.required,
-        Validators.pattern(/^[0-9]{8}$/)
-      ]);
-    }
-
-    if (type === 'RUC') {
-      control.setValidators([
-        Validators.required,
-        Validators.pattern(/^[0-9]{11}$/)
-      ]);
-    }
-
-    if (type === 'CE') {
+      control.setValidators([Validators.required, Validators.pattern(/^[0-9]{8}$/)]);
+    } else if (type === 'RUC') {
+      control.setValidators([Validators.required, Validators.pattern(/^[0-9]{11}$/)]);
+    } else if (type === 'CE') {
       control.setValidators([
         Validators.required,
         Validators.minLength(5),
@@ -184,115 +160,75 @@ export class ClientsForm implements OnInit {
   }
 
   submitClient(): void {
-    if (this.isSaving) {
-      return;
-    }
+  if (this.isSaving) return;
 
-    if (this.clientForm.invalid) {
-      this.clientForm.markAllAsTouched();
-      return;
-    }
-
-    this.isSaving = true;
-    this.saveError = '';
-
-    const formValue = this.clientForm.getRawValue();
-
-    const clientData: ClientRequest = {
-      tipoDocumento: formValue.tipoDocumento ?? 'DNI',
-      numeroDocumento: formValue.numeroDocumento?.trim() ?? '',
-      nombres: formValue.nombres?.trim() ?? '',
-      apellidos: formValue.apellidos?.trim() ?? '',
-      razonSocial: formValue.razonSocial?.trim() ?? '',
-      direccion: formValue.direccion?.trim() ?? '',
-      telefono: formValue.telefono?.trim() ?? '',
-      email: formValue.email?.trim() ?? '',
-      consentimientoDatos: true
-    };
-
-    const request = this.isEditMode
-      ? this.clientService.update(this.clientId, clientData)
-      : this.clientService.create(clientData);
-
-    request.subscribe({
-      next: () => {
-        this.isSaving = false;
-        this.router.navigate(['/dashboard/clients']);
-      },
-      error: (err) => {
-        this.isSaving = false;
-        this.saveError = err?.error?.message || (this.isEditMode
-          ? 'No se pudo actualizar el cliente. Intenta nuevamente.'
-          : 'No se pudo registrar el cliente. Intenta nuevamente.');
-      }
-    });
+  if (this.clientForm.invalid) {
+    this.clientForm.markAllAsTouched();
+    return;
   }
 
-  cancel(): void {
-    if (this.isSaving) {
-      return;
-    }
+  this.isSaving = true;
+  this.saveError = '';
 
+  const formValue = this.clientForm.getRawValue();
+
+  const clientData: ClientRequest = {
+    tipoDocumento: formValue.tipoDocumento ?? 'DNI',
+    numeroDocumento: formValue.numeroDocumento?.trim() ?? '',
+    nombres: formValue.nombres?.trim() ?? '',
+    apellidos: formValue.apellidos?.trim() ?? '',
+    razonSocial: formValue.razonSocial?.trim() || '',
+    direccion: formValue.direccion?.trim() ?? '',
+    telefono: formValue.telefono?.trim() ?? '',
+    email: formValue.email?.trim() ?? ''
+  };
+
+  const request$ = this.isEditMode
+    ? this.clientService.update(this.clientId, clientData)
+    : this.clientService.create(clientData);
+
+  request$.subscribe({
+    next: () => {
+      this.isSaving = false;
+      this.router.navigate(['/dashboard/clients']);
+    },
+    error: (err) => {
+      this.isSaving = false;
+      this.saveError = err?.error?.message || (this.isEditMode
+        ? 'No se pudo actualizar el cliente. Intenta nuevamente.'
+        : 'No se pudo registrar el cliente. Intenta nuevamente.');
+    }
+  });
+}
+
+  cancel(): void {
+    if (this.isSaving) return;
     this.router.navigate(['/dashboard/clients']);
   }
 
   isInvalid(field: string): boolean {
     const control = this.clientForm.get(field);
-
-    return !!control &&
-      control.invalid &&
-      (control.touched || control.dirty);
+    return !!control && control.invalid && (control.touched || control.dirty);
   }
 
   getErrorMessage(field: string): string {
     const control = this.clientForm.get(field);
+    if (!control?.errors) return '';
 
-    if (!control?.errors) {
-      return '';
-    }
-
-    if (control.hasError('required')) {
-      return 'Este campo es obligatorio.';
-    }
-
-    if (control.hasError('minlength')) {
-      return `Debe tener al menos ${control.errors['minlength'].requiredLength} caracteres.`;
-    }
-
-    if (control.hasError('maxlength')) {
-      return `No puede superar los ${control.errors['maxlength'].requiredLength} caracteres.`;
-    }
-
-    if (control.hasError('email')) {
-      return 'Ingresa un correo electrónico válido.';
-    }
-
-    if (control.hasError('onlyLetters')) {
-      return 'Solo se permiten letras y espacios.';
-    }
-
+    if (control.hasError('required')) return 'Este campo es obligatorio.';
+    if (control.hasError('minlength')) return `Debe tener al menos ${control.errors['minlength'].requiredLength} caracteres.`;
+    if (control.hasError('maxlength')) return `No puede superar los ${control.errors['maxlength'].requiredLength} caracteres.`;
+    if (control.hasError('email')) return 'Ingresa un correo electrónico válido.';
+    if (control.hasError('onlyLetters')) return 'Solo se permiten letras y espacios.';
     if (control.hasError('pattern')) {
       const type = this.clientForm.get('tipoDocumento')?.value;
-
       if (field === 'numeroDocumento') {
-        if (type === 'DNI') {
-          return 'El DNI debe tener exactamente 8 números.';
-        }
-
-        if (type === 'RUC') {
-          return 'El RUC debe tener exactamente 11 números.';
-        }
-
-        if (type === 'CE') {
-          return 'El CE solo debe contener letras y números.';
-        }
+        if (type === 'DNI') return 'El DNI debe tener exactamente 8 números.';
+        if (type === 'RUC') return 'El RUC debe tener exactamente 11 números.';
+        if (type === 'CE') return 'El CE solo debe contener letras y números.';
       }
-
-      if (field === 'telefono') {
-        return 'El teléfono debe tener exactamente 9 números.';
-      }
+      if (field === 'telefono') return 'El teléfono debe tener exactamente 9 números.';
     }
-
     return 'El valor ingresado no es válido.';
   }
 }

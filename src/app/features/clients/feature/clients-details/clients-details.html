@@ -1,19 +1,37 @@
 <div class="client-details-page">
   <app-page-header
-    title="Detalle del cliente"
-    subtitle="Consulta la información y actividad del cliente."
-    [showBackButton]="true"
-    (back)="goBack()"
-  >
-    <div actions>
-      @if (client) {
-        <button type="button" class="edit-button" (click)="editClient()">
-          <i class="pi pi-pencil"></i>
-          <span>Editar cliente</span>
+  title="Detalle del cliente"
+  subtitle="Consulta la información y actividad del cliente."
+  [showBackButton]="true"
+  (back)="goBack()"
+>
+  <div actions class="header-actions">
+    @if (client) {
+      <div class="export-dropdown">
+        <button type="button" class="export-button">
+          <i class="pi pi-download"></i>
+          <span>Exportar</span>
+          <i class="pi pi-chevron-down"></i>
         </button>
-      }
-    </div>
-  </app-page-header>
+        <div class="export-menu">
+          <button type="button" (click)="exportDetailToPdf()">
+            <i class="pi pi-file-pdf"></i>
+            Exportar a PDF
+          </button>
+          <button type="button" (click)="exportDetailToXml()">
+            <i class="pi pi-file"></i>
+            Exportar a XML
+          </button>
+        </div>
+      </div>
+
+      <button type="button" class="edit-button" (click)="editClient()">
+        <i class="pi pi-pencil"></i>
+        <span>Editar cliente</span>
+      </button>
+    }
+  </div>
+</app-page-header>
 
   <main class="page-content">
     @if (isLoading) {
