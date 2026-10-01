@@ -1,12 +1,14 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
 import { PageHeader } from '../../../../shared/ui/layout/page-header/page-header';
 import { DataTable } from '../../../../shared/ui/layout/data-table/data-table';
 import { TableColumn } from '../../../../shared/ui/layout/data-table/data-table.interface';
 import { ConfirmationDialog } from '../../../../shared/ui/layout/confirmation-dialog/confirmation-dialog';
+import { FilterBar } from '../../../../shared/ui/layout/filter-bar/filter-bar';
+import { FilterState } from '../../../../shared/ui/layout/filter-bar/filter-bar.interface';
+
 import { ClientHttpService } from '../../data-access/api/client-http.service';
 import { Client } from '../../domain/models/client';
 import { ClientStore } from '../../data-access/state/client.store';
@@ -16,10 +18,10 @@ import { ClientStore } from '../../data-access/state/client.store';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     PageHeader,
     DataTable,
-    ConfirmationDialog
+    ConfirmationDialog,
+    FilterBar
   ],
   templateUrl: './clients-list.html',
   styleUrl: './clients-list.scss'
@@ -32,8 +34,12 @@ export class ClientsList implements OnInit {
 
   clients: Client[] = [];
   filteredClients: Client[] = [];
-  searchTerm = '';
-  statusFilter = '';
+  currentFilters: FilterState = {
+    search: '',
+    status: '',
+    documentType: ''
+  };
+
   isLoading = false;
   loadError = false;
   currentPage = 1;
@@ -41,6 +47,7 @@ export class ClientsList implements OnInit {
   showDeactivateDialog = false;
   selectedClient: Client | null = null;
   isDeactivating = false;
+
   tableColumns: TableColumn[] = [
     { field: 'cliente', header: 'Cliente', width: '28%' },
     { field: 'documento', header: 'Documento', width: '16%' },
@@ -60,11 +67,12 @@ export class ClientsList implements OnInit {
     this.loadError = false;
     this.clientService.getAll().subscribe({
       next: (clients) => {
-        console.log('Datos recibidos del backend:', clients);
-        this.clients = (clients as any[]).map(c => ({
+        const mapped = (clients as any[]).map(c => ({
           ...c,
           activo: c.activo !== undefined ? c.activo : c.active
         }));
+
+        this.clients = [...mapped].reverse();
         this.applyFilters();
         this.isLoading = false;
         this.cdr.detectChanges();
@@ -80,21 +88,43 @@ export class ClientsList implements OnInit {
     });
   }
 
-  applyFilters(): void {
-    const search = this.searchTerm.trim().toLowerCase();
-    this.filteredClients = this.clients.filter((client) => {
+  onFilterChange(filters: FilterState): void {
+    this.currentFilters = filters;
+    this.applyFilters();
+  }
+
+    applyFilters(): void {
+    const search = (this.currentFilters.search || '').trim().toLowerCase();
+    const status = this.currentFilters.status;
+    const docType = this.currentFilters.documentType;
+    const result = this.clients.filter((client) => {
       const fullName = `${client.nombres} ${client.apellidos}`.toLowerCase();
       const matchesSearch =
         !search ||
         fullName.includes(search) ||
         client.numeroDocumento.toLowerCase().includes(search) ||
         (client.telefono && client.telefono.toLowerCase().includes(search));
+
       const matchesStatus =
-        !this.statusFilter ||
-        (this.statusFilter === 'active' && client.activo) ||
-        (this.statusFilter === 'inactive' && !client.activo);
-      return matchesSearch && matchesStatus;
+        !status ||
+        (status === 'active' && client.activo) ||
+        (status === 'inactive' && !client.activo);
+
+      const matchesDocType = !docType || client.tipoDocumento === docType;
+
+      return matchesSearch && matchesStatus && matchesDocType;
     });
+    const hasDate = result.some((c: any) => c.createdAt || c.fechaCreacion);
+
+    if (hasDate) {
+      this.filteredClients = result.sort((a: any, b: any) => {
+        const dateA = new Date(a.createdAt || a.fechaCreacion || 0).getTime();
+        const dateB = new Date(b.createdAt || b.fechaCreacion || 0).getTime();
+        return dateB - dateA;
+      });
+    } else {
+      this.filteredClients = result;
+    }
 
     this.currentPage = 1;
   }
@@ -151,6 +181,7 @@ export class ClientsList implements OnInit {
       }
     });
   }
+
   activateClient(client: Client): void {
     if (this.isDeactivating) return;
     const clientId = client.id;

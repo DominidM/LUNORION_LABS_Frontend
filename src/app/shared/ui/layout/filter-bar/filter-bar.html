@@ -1,41 +1,69 @@
-<div class="filter-bar">
-  <div class="search-input-wrapper">
+<section class="filter-bar">
+  <div class="search-box">
     <i class="pi pi-search"></i>
     <input
       type="text"
       [placeholder]="searchPlaceholder"
-      [(ngModel)]="searchValue"
-      (ngModelChange)="onSearch($event)"
-      class="filter-input"
+      [(ngModel)]="filterState.search"
+      (input)="onFilterApply()"
     />
   </div>
 
-  <div class="filters-group">
-    @if (showDocTypeFilter) {
-      <div class="select-wrapper">
+  <div class="filters-actions">
+    @if (showDocumentTypeFilter) {
+      <div class="filter-select-wrapper">
         <i class="pi pi-id-card"></i>
-        <select [(ngModel)]="docTypeValue" (ngModelChange)="onDocTypeChange($event)" class="filter-select">
-          <option value="">Todos los documentos</option>
-          <option value="DNI">DNI</option>
-          <option value="RUC">RUC</option>
-          <option value="CE">CE</option>
+        <select [(ngModel)]="filterState.documentType" (change)="onFilterApply()">
+          @for (doc of documentTypeOptions; track doc.value) {
+            <option [value]="doc.value">{{ doc.label }}</option>
+          }
         </select>
       </div>
     }
 
-    <div class="select-wrapper">
-      <i class="pi pi-filter"></i>
-      <select [(ngModel)]="statusValue" (ngModelChange)="onStatusChange($event)" class="filter-select">
-        <option value="">Todos los estados</option>
-        <option value="active">Activos</option>
-        <option value="inactive">Inactivos</option>
-      </select>
-    </div>
+    @if (showStatusFilter) {
+      <div class="filter-select-wrapper">
+        <i class="pi pi-filter"></i>
+        <select [(ngModel)]="filterState.status" (change)="onFilterApply()">
+          @for (opt of statusOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    }
 
-    @if (searchValue || statusValue || docTypeValue) {
-      <button type="button" class="btn-clear" (click)="clear()" title="Limpiar filtros">
+    @if (showDateFilters) {
+      <div class="date-group">
+        <div class="date-input-wrapper">
+          <input
+            type="date"
+            [(ngModel)]="filterState.startDate"
+            (change)="onFilterApply()"
+            title="Fecha desde"
+          />
+        </div>
+        <span>a</span>
+        <div class="date-input-wrapper">
+          <input
+            type="date"
+            [(ngModel)]="filterState.endDate"
+            (change)="onFilterApply()"
+            title="Fecha hasta"
+          />
+        </div>
+      </div>
+    }
+
+    @if (hasActiveFilters) {
+      <button
+        type="button"
+        class="btn-clear"
+        (click)="clearFilters()"
+        title="Limpiar filtros"
+      >
         <i class="pi pi-filter-slash"></i>
+        <span>Limpiar</span>
       </button>
     }
   </div>
-</div>
+</section>

@@ -1,14 +1,24 @@
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+
 import { PageHeader } from '../../../../shared/ui/layout/page-header/page-header';
+import { FormCard } from '../../../../shared/ui/layout/form-card/form-card';
+import { DataTable } from '../../../../shared/ui/layout/data-table/data-table';
+import { TableColumn } from '../../../../shared/ui/layout/data-table/data-table.interface';
+
 import { ClientHttpService, ClientProfitability, WorkHistory } from '../../data-access/api/client-http.service';
 import { Client } from '../../domain/models/client';
 
 @Component({
   selector: 'app-clients-details',
   standalone: true,
-  imports: [CommonModule, PageHeader],
+  imports: [
+    CommonModule, 
+    PageHeader, 
+    FormCard, 
+    DataTable
+  ],
   templateUrl: './clients-details.html',
   styleUrl: './clients-details.scss'
 })
@@ -24,6 +34,13 @@ export class ClientsDetails implements OnInit {
 
   isLoading = true;
   loadError = false;
+
+  historyColumns: TableColumn[] = [
+    { field: 'ordenTrabajoId', header: 'Orden', width: '20%' },
+    { field: 'descripcion', header: 'Descripción', width: '45%' },
+    { field: 'estado', header: 'Estado', width: '15%', align: 'center' },
+    { field: 'fechaCreacion', header: 'Fecha', width: '20%', align: 'center' }
+  ];
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -275,5 +292,4 @@ export class ClientsDetails implements OnInit {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   }
-  
 }

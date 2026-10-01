@@ -31,26 +31,14 @@
     </div>
   </app-page-header>
 
-  <section class="clients-toolbar">
-    <div class="clients-search">
-      <i class="pi pi-search"></i>
-      <input
-        type="text"
-        placeholder="Buscar por nombre, documento o teléfono..."
-        [(ngModel)]="searchTerm"
-        (input)="applyFilters()"
-      />
-    </div>
-
-    <div class="clients-filter">
-      <i class="pi pi-filter"></i>
-      <select [(ngModel)]="statusFilter" (change)="applyFilters()">
-        <option value="">Todos los estados</option>
-        <option value="active">Activos</option>
-        <option value="inactive">Inactivos</option>
-      </select>
-    </div>
-  </section>
+  <app-filter-bar
+    searchPlaceholder="Buscar por nombre, documento o teléfono..."
+    [showStatusFilter]="true"
+    [showDocumentTypeFilter]="true"
+    [showDateFilters]="false"
+    (filterChange)="onFilterChange($event)"
+  >
+  </app-filter-bar>
 
   <app-data-table
     [columns]="tableColumns"
@@ -132,20 +120,20 @@
   </app-data-table>
 
   <app-confirmation-dialog
-  [visible]="showDeactivateDialog"
-  title="Desactivar cliente"
-  [message]="
-    '¿Estás seguro de que deseas desactivar a ' +
-    (selectedClient?.nombres ?? '') +
-    ' ' +
-    (selectedClient?.apellidos ?? '') +
-    '?'
-  "
-  type="warning"
-  confirmText="Desactivar"
-  cancelText="Cancelar"
-  (confirm)="deactivateClient()"
-  (cancel)="closeDeactivateDialog()"
->
-</app-confirmation-dialog>
+    [visible]="showDeactivateDialog"
+    title="Desactivar cliente"
+    [message]="
+      '¿Estás seguro de que deseas desactivar a ' +
+      (selectedClient?.nombres ?? '') +
+      ' ' +
+      (selectedClient?.apellidos ?? '') +
+      '?'
+    "
+    type="warning"
+    confirmText="Desactivar"
+    cancelText="Cancelar"
+    (confirm)="deactivateClient()"
+    (cancel)="closeDeactivateDialog()"
+  >
+  </app-confirmation-dialog>
 </div>

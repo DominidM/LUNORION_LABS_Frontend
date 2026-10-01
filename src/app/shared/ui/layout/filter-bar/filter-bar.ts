@@ -1,11 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-export interface FilterOption {
-  label: string;
-  value: string;
-}
+import { FilterState, SelectOption } from './filter-bar.interface';
 
 @Component({
   selector: 'app-filter-bar',
@@ -15,33 +11,54 @@ export interface FilterOption {
   styleUrl: './filter-bar.scss'
 })
 export class FilterBar {
-  @Input() searchPlaceholder: string = 'Buscar...';
-  @Input() searchValue: string = '';
-  @Input() statusValue: string = '';
-  @Input() docTypeValue: string = '';
-  @Input() showDocTypeFilter: boolean = false;
+  @Input() searchPlaceholder: string = 'Buscar por nombre, documento o teléfono...';
+  @Input() showStatusFilter: boolean = true;
+  @Input() showDateFilters: boolean = false;
+  @Input() showDocumentTypeFilter: boolean = false;
+  @Input() statusOptions: SelectOption[] = [
+    { label: 'Todos los estados', value: '' },
+    { label: 'Activos', value: 'active' },
+    { label: 'Inactivos', value: 'inactive' }
+  ];
+  @Input() documentTypeOptions: SelectOption[] = [
+    { label: 'Todos los documentos', value: '' },
+    { label: 'DNI', value: 'DNI' },
+    { label: 'RUC', value: 'RUC' },
+    { label: 'CE', value: 'CE' }
+  ];
+  filterState: FilterState = {
+    search: '',
+    status: '',
+    documentType: '',
+    startDate: '',
+    endDate: ''
+  };
+  @Output() filterChange = new EventEmitter<FilterState>();
+  @Output() filterReset = new EventEmitter<void>();
 
-  @Output() searchChange = new EventEmitter<string>();
-  @Output() statusChange = new EventEmitter<string>();
-  @Output() docTypeChange = new EventEmitter<string>();
-  @Output() resetFilters = new EventEmitter<void>();
-
-  onSearch(value: string): void {
-    this.searchChange.emit(value);
+  get hasActiveFilters(): boolean {
+    return !!(
+      this.filterState.search ||
+      this.filterState.status ||
+      this.filterState.documentType ||
+      this.filterState.startDate ||
+      this.filterState.endDate
+    );
   }
 
-  onStatusChange(value: string): void {
-    this.statusChange.emit(value);
+  onFilterApply(): void {
+    this.filterChange.emit({ ...this.filterState });
   }
 
-  onDocTypeChange(value: string): void {
-    this.docTypeChange.emit(value);
-  }
-
-  clear(): void {
-    this.searchValue = '';
-    this.statusValue = '';
-    this.docTypeValue = '';
-    this.resetFilters.emit();
+  clearFilters(): void {
+    this.filterState = {
+      search: '',
+      status: '',
+      documentType: '',
+      startDate: '',
+      endDate: ''
+    };
+    this.filterReset.emit();
+    this.filterChange.emit({ ...this.filterState });
   }
 }
