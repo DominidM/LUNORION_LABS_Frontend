@@ -1,0 +1,41 @@
+<div class="filter-bar">
+  <div class="search-input-wrapper">
+    <i class="pi pi-search"></i>
+    <input
+      type="text"
+      [placeholder]="searchPlaceholder"
+      [(ngModel)]="searchValue"
+      (ngModelChange)="onSearch($event)"
+      class="filter-input"
+    />
+  </div>
+
+  <div class="filters-group">
+    @if (showDocTypeFilter) {
+      <div class="select-wrapper">
+        <i class="pi pi-id-card"></i>
+        <select [(ngModel)]="docTypeValue" (ngModelChange)="onDocTypeChange($event)" class="filter-select">
+          <option value="">Todos los documentos</option>
+          <option value="DNI">DNI</option>
+          <option value="RUC">RUC</option>
+          <option value="CE">CE</option>
+        </select>
+      </div>
+    }
+
+    <div class="select-wrapper">
+      <i class="pi pi-filter"></i>
+      <select [(ngModel)]="statusValue" (ngModelChange)="onStatusChange($event)" class="filter-select">
+        <option value="">Todos los estados</option>
+        <option value="active">Activos</option>
+        <option value="inactive">Inactivos</option>
+      </select>
+    </div>
+
+    @if (searchValue || statusValue || docTypeValue) {
+      <button type="button" class="btn-clear" (click)="clear()" title="Limpiar filtros">
+        <i class="pi pi-filter-slash"></i>
+      </button>
+    }
+  </div>
+</div>
