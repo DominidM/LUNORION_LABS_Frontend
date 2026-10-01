@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-form-section-card',
+  selector: 'app-form-card',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './form-card.html',

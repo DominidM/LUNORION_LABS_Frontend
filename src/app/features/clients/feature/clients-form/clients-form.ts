@@ -12,6 +12,7 @@ import { PageHeader } from '../../../../shared/ui/layout/page-header/page-header
 import { FormCard } from '../../../../shared/ui/layout/form-card/form-card';
 import { ClientHttpService } from '../../data-access/api/client-http.service';
 import { ClientRequest } from '../../domain/ports/client-repository';
+import { ClientStore } from '../../data-access/state/client.store';
 
 @Component({
   selector: 'app-clients-form',
@@ -30,6 +31,7 @@ export class ClientsForm implements OnInit {
   private clientService = inject(ClientHttpService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private clientStore = inject(ClientStore);
 
   isEditMode = false;
   clientId = '';
@@ -159,47 +161,96 @@ export class ClientsForm implements OnInit {
     control.updateValueAndValidity();
   }
 
-  submitClient(): void {
-  if (this.isSaving) return;
+  private getTenantIdFromToken(): string | null {
+    const token = localStorage.getItem('auth_token') 
+      || localStorage.getItem('token') 
+      || localStorage.getItem('access_token');
 
-  if (this.clientForm.invalid) {
-    this.clientForm.markAllAsTouched();
-    return;
+    if (!token) return null;
+
+    try {
+      const payloadBase64 = token.split('.')[1];
+      if (!payloadBase64) return null;
+      const decodedJson = atob(payloadBase64);
+      const payload = JSON.parse(decodedJson);
+      return payload.tenantId || payload.tenant_id || payload.tenant || null;
+    } catch (error) {
+      console.error('Error al decodificar el token:', error);
+      return null;
+    }
   }
 
-  this.isSaving = true;
-  this.saveError = '';
-
-  const formValue = this.clientForm.getRawValue();
-
-  const clientData: ClientRequest = {
-    tipoDocumento: formValue.tipoDocumento ?? 'DNI',
-    numeroDocumento: formValue.numeroDocumento?.trim() ?? '',
-    nombres: formValue.nombres?.trim() ?? '',
-    apellidos: formValue.apellidos?.trim() ?? '',
-    razonSocial: formValue.razonSocial?.trim() || '',
-    direccion: formValue.direccion?.trim() ?? '',
-    telefono: formValue.telefono?.trim() ?? '',
-    email: formValue.email?.trim() ?? ''
-  };
-
-  const request$ = this.isEditMode
-    ? this.clientService.update(this.clientId, clientData)
-    : this.clientService.create(clientData);
-
-  request$.subscribe({
-    next: () => {
-      this.isSaving = false;
-      this.router.navigate(['/dashboard/clients']);
-    },
-    error: (err) => {
-      this.isSaving = false;
-      this.saveError = err?.error?.message || (this.isEditMode
-        ? 'No se pudo actualizar el cliente. Intenta nuevamente.'
-        : 'No se pudo registrar el cliente. Intenta nuevamente.');
+    private getTenantId(): string {
+    const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.tenantId) return user.tenantId;
+        if (user.tenant?.id) return user.tenant.id;
+      } catch (e) {
+        console.warn('Error al parsear usuario de sesión', e);
+      }
     }
-  });
-}
+    const tokenTenant = this.getTenantIdFromToken();
+    if (tokenTenant) return tokenTenant;
+    return '';
+  }
+
+  submitClient(): void {
+    if (this.isSaving) return;
+    if (this.clientForm.invalid) {
+      this.clientForm.markAllAsTouched();
+      return;
+    }
+    const tenantId = this.getTenantId();
+    if (!tenantId) {
+      this.saveError = 'No se encontró la sesión del negocio (Tenant). Por favor, inicia sesión nuevamente.';
+      return;
+    }
+    this.isSaving = true;
+    this.saveError = '';
+    const formValue = this.clientForm.getRawValue();
+    const tipoDoc = formValue.tipoDocumento ?? 'DNI';
+    const clientData: ClientRequest = {
+      tenantId: tenantId,
+      tipoDocumento: tipoDoc,
+      numeroDocumento: formValue.numeroDocumento?.trim() ?? '',
+      nombres: formValue.nombres?.trim() ?? '',
+      apellidos: formValue.apellidos?.trim() ?? '',
+      razonSocial: tipoDoc === 'RUC' ? (formValue.razonSocial?.trim() || '') : '',
+      direccion: formValue.direccion?.trim() ?? '',
+      telefono: formValue.telefono?.trim() ?? '',
+      email: formValue.email?.trim() ?? ''
+    };
+    const request$ = this.isEditMode
+      ? this.clientService.update(this.clientId, clientData)
+      : this.clientService.create(clientData);
+    request$.subscribe({
+      next: (savedClient) => {
+        if (this.isEditMode) {
+          this.clientStore.updateClient(savedClient);
+        } else {
+          this.clientStore.addClient(savedClient);
+        }
+        this.isSaving = false;
+        this.router.navigate(['/dashboard/clients']);
+      },
+      error: (err) => {
+        this.isSaving = false;
+        console.error('Error al guardar/actualizar cliente:', err);
+
+        if (err?.status === 409) {
+          this.saveError = 'Ya existe un cliente con ese número de documento.';
+        } else if (err?.error?.message) {
+          this.saveError = err.error.message;
+        } else {
+          this.saveError = this.isEditMode
+            ? 'No se pudo actualizar el cliente. Verifica los datos.'
+            : 'No se pudo registrar el cliente. Verifica que el documento no esté duplicado.';
+        }
+      }
+    });
+  }
 
   cancel(): void {
     if (this.isSaving) return;

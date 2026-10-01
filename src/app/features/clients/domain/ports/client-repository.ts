@@ -2,6 +2,7 @@ import { Observable } from 'rxjs';
 import { Client } from '../models/client';
 
 export interface ClientRequest {
+  tenantId?: string;
   tipoDocumento: string;
   numeroDocumento: string;
   nombres: string;

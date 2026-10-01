@@ -122,7 +122,6 @@
               class="action-button action-success"
               title="Activar cliente"
               (click)="activateClient(client)"
-              [disabled]="isDeactivating"
             >
               <i class="pi pi-check-circle"></i>
             </button>
@@ -133,20 +132,20 @@
   </app-data-table>
 
   <app-confirmation-dialog
-    [visible]="showDeactivateDialog"
-    title="Desactivar cliente"
-    [message]="
-      '¿Estás seguro de que deseas desactivar a ' +
-      (selectedClient?.nombres ?? '') +
-      ' ' +
-      (selectedClient?.apellidos ?? '') +
-      '?'
-    "
-    type="warning"
-    confirmText="Desactivar"
-    cancelText="Cancelar"
-    (confirm)="deactivateClient()"
-    (cancel)="closeDeactivateDialog()"
-  >
-  </app-confirmation-dialog>
+  [visible]="showDeactivateDialog"
+  title="Desactivar cliente"
+  [message]="
+    '¿Estás seguro de que deseas desactivar a ' +
+    (selectedClient?.nombres ?? '') +
+    ' ' +
+    (selectedClient?.apellidos ?? '') +
+    '?'
+  "
+  type="warning"
+  confirmText="Desactivar"
+  cancelText="Cancelar"
+  (confirm)="deactivateClient()"
+  (cancel)="closeDeactivateDialog()"
+>
+</app-confirmation-dialog>
 </div>

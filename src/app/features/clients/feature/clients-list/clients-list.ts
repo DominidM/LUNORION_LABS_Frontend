@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -9,6 +9,7 @@ import { TableColumn } from '../../../../shared/ui/layout/data-table/data-table.
 import { ConfirmationDialog } from '../../../../shared/ui/layout/confirmation-dialog/confirmation-dialog';
 import { ClientHttpService } from '../../data-access/api/client-http.service';
 import { Client } from '../../domain/models/client';
+import { ClientStore } from '../../data-access/state/client.store';
 
 @Component({
   selector: 'app-clients-list',
@@ -23,27 +24,23 @@ import { Client } from '../../domain/models/client';
   templateUrl: './clients-list.html',
   styleUrl: './clients-list.scss'
 })
-export class ClientsList {
+export class ClientsList implements OnInit {
   private clientService = inject(ClientHttpService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private clientStore = inject(ClientStore);
 
   clients: Client[] = [];
   filteredClients: Client[] = [];
-
   searchTerm = '';
   statusFilter = '';
-
   isLoading = false;
   loadError = false;
-
   currentPage = 1;
   pageSize = 5;
-
   showDeactivateDialog = false;
   selectedClient: Client | null = null;
   isDeactivating = false;
-
   tableColumns: TableColumn[] = [
     { field: 'cliente', header: 'Cliente', width: '28%' },
     { field: 'documento', header: 'Documento', width: '16%' },
@@ -54,22 +51,26 @@ export class ClientsList {
     { field: 'acciones', header: 'Acciones', width: '8%', align: 'center' }
   ];
 
-  constructor() {
+  ngOnInit(): void {
     this.loadClients();
   }
 
   loadClients(): void {
     this.isLoading = true;
     this.loadError = false;
-
     this.clientService.getAll().subscribe({
       next: (clients) => {
-        this.clients = clients;
+        console.log('Datos recibidos del backend:', clients);
+        this.clients = (clients as any[]).map(c => ({
+          ...c,
+          activo: c.activo !== undefined ? c.activo : c.active
+        }));
         this.applyFilters();
         this.isLoading = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al cargar clientes:', err);
         this.clients = [];
         this.filteredClients = [];
         this.loadError = true;
@@ -81,21 +82,17 @@ export class ClientsList {
 
   applyFilters(): void {
     const search = this.searchTerm.trim().toLowerCase();
-
     this.filteredClients = this.clients.filter((client) => {
       const fullName = `${client.nombres} ${client.apellidos}`.toLowerCase();
-
       const matchesSearch =
         !search ||
         fullName.includes(search) ||
         client.numeroDocumento.toLowerCase().includes(search) ||
         (client.telefono && client.telefono.toLowerCase().includes(search));
-
       const matchesStatus =
         !this.statusFilter ||
         (this.statusFilter === 'active' && client.activo) ||
         (this.statusFilter === 'inactive' && !client.activo);
-
       return matchesSearch && matchesStatus;
     });
 
@@ -133,49 +130,50 @@ export class ClientsList {
   deactivateClient(): void {
     if (!this.selectedClient || this.isDeactivating) return;
 
+    const clientId = this.selectedClient.id;
     this.isDeactivating = true;
 
-    this.clientService.deactivate(this.selectedClient.id).subscribe({
+    this.clientService.deactivate(clientId).subscribe({
       next: () => {
+        this.updateLocalClientStatus(clientId, false);
+        this.clientStore.updateClientStatus(clientId, false);
         this.isDeactivating = false;
         this.showDeactivateDialog = false;
-
-        this.clients = this.clients.map((c) =>
-          c.id === this.selectedClient?.id ? { ...c, activo: false } : c
-        );
-
         this.selectedClient = null;
-        this.applyFilters();
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        console.error('Error al desactivar cliente:', err);
+        this.isDeactivating = false;
+        this.showDeactivateDialog = false;
+        this.selectedClient = null;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+  activateClient(client: Client): void {
+    if (this.isDeactivating) return;
+    const clientId = client.id;
+    this.isDeactivating = true;
+
+    this.clientService.activate(clientId).subscribe({
+      next: () => {
+        this.updateLocalClientStatus(clientId, true);
+        this.clientStore.updateClientStatus(clientId, true);
+        this.isDeactivating = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al activar cliente:', err);
         this.isDeactivating = false;
         this.cdr.detectChanges();
       }
     });
   }
 
-  activateClient(client: Client): void {
-    if (this.isDeactivating) return;
-
-    this.isDeactivating = true;
-
-    this.clientService.activate(client.id).subscribe({
-      next: () => {
-        this.isDeactivating = false;
-
-        this.clients = this.clients.map((c) =>
-          c.id === client.id ? { ...c, activo: true } : c
-        );
-
-        this.applyFilters();
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.isDeactivating = false;
-        this.cdr.detectChanges();
-      }
-    });
+  private updateLocalClientStatus(id: string, activo: boolean): void {
+    this.clients = this.clients.map(c => (c.id === id ? { ...c, activo } : c));
+    this.applyFilters();
   }
 
   openCreateClient(): void {
