@@ -1,11 +1,10 @@
 <div class="clients-page">
-  <header class="clients-header">
-    <div class="clients-header__content">
-      <h1>Clientes</h1>
-      <p>Gestiona los clientes registrados en el taller.</p>
-    </div>
-
-    <div class="clients-header__actions">
+  <app-page-header
+    title="Clientes"
+    subtitle="Gestiona los clientes registrados en el taller."
+    [showBackButton]="false"
+  >
+    <div actions class="header-actions">
       <div class="export-dropdown">
         <button type="button" class="export-button">
           <i class="pi pi-download"></i>
@@ -14,12 +13,11 @@
         </button>
 
         <div class="export-menu">
-          <button type="button">
+          <button type="button" (click)="exportToPdf()">
             <i class="pi pi-file-pdf"></i>
             Exportar a PDF
           </button>
-
-          <button type="button">
+          <button type="button" (click)="exportToXml()">
             <i class="pi pi-file"></i>
             Exportar a XML
           </button>
@@ -31,187 +29,95 @@
         <span>Nuevo cliente</span>
       </button>
     </div>
-  </header>
+  </app-page-header>
 
-  <section class="clients-toolbar">
-    <div class="clients-search">
-      <i class="pi pi-search"></i>
+  <app-filter-bar
+    searchPlaceholder="Buscar por nombre, documento o teléfono..."
+    [showStatusFilter]="true"
+    [showDocumentTypeFilter]="true"
+    [showDateFilters]="false"
+    (filterChange)="onFilterChange($event)"
+  >
+  </app-filter-bar>
 
-      <input
-        type="text"
-        placeholder="Buscar por nombre, documento o teléfono..."
-        [(ngModel)]="searchTerm"
-        (input)="applyFilters()"
-      />
-    </div>
-
-    <div class="clients-filter">
-      <i class="pi pi-filter"></i>
-
-      <select [(ngModel)]="statusFilter" (change)="applyFilters()">
-        <option value="">Todos los estados</option>
-        <option value="active">Activos</option>
-        <option value="inactive">Inactivos</option>
-      </select>
-    </div>
-  </section>
-
-  <section class="clients-table-card">
-    <div class="clients-table-wrapper">
-      <table class="clients-table">
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Documento</th>
-            <th>Teléfono</th>
-            <th>Email</th>
-            <th>Vehículos</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          @if (loadError) {
-            <tr>
-              <td colspan="7">
-                <div class="clients-empty">
-                  <div class="clients-empty__icon">
-                    <i class="pi pi-exclamation-triangle"></i>
-                  </div>
-
-                  <h3>No se pudieron cargar los clientes</h3>
-
-                  <p>Verifica la conexión con el servidor e inténtalo nuevamente.</p>
-
-                  <button type="button" (click)="loadClients()">Reintentar</button>
-                </div>
-              </td>
-            </tr>
-          } @else if (paginatedClients.length === 0) {
-            <tr>
-              <td colspan="7">
-                <div class="clients-empty">
-                  <div class="clients-empty__icon">
-                    <i class="pi pi-users"></i>
-                  </div>
-
-                  <h3>No hay clientes para mostrar</h3>
-
-                  <p>Los clientes registrados aparecerán aquí cuando estén disponibles.</p>
-                </div>
-              </td>
-            </tr>
-          } @else {
-            @for (client of paginatedClients; track client.id) {
-              <tr>
-                <td>
-                  <div class="client-name">
-                    <strong> {{ client.nombres }} {{ client.apellidos }} </strong>
-
-                    @if (client.razonSocial) {
-                      <span>{{ client.razonSocial }}</span>
-                    }
-                  </div>
-                </td>
-
-                <td>{{ client.tipoDocumento }} {{ client.numeroDocumento }}</td>
-
-                <td>
-                  {{ client.telefono }}
-                </td>
-
-                <td>
-                  {{ client.email }}
-                </td>
-
-                <td>0</td>
-
-                <td>
-                  <span [class]="client.activo ? 'chip-success' : 'chip-inactive'">
-                    {{ client.activo ? 'Activo' : 'Inactivo' }}
-                  </span>
-                </td>
-
-                <td>
-                  <div class="client-actions">
-                    <button
-                      type="button"
-                      class="action-button"
-                      title="Ver cliente"
-                      (click)="openClientDetails(client.id)"
-                    >
-                      <i class="pi pi-eye"></i>
-                    </button>
-
-                    <button
-                      type="button"
-                      class="action-button"
-                      title="Editar cliente"
-                      (click)="openEditClient(client.id)"
-                    >
-                      <i class="pi pi-pencil"></i>
-                    </button>
-
-                    @if (client.activo) {
-                      <button
-                        type="button"
-                        class="action-button action-danger"
-                        title="Desactivar cliente"
-                        (click)="openDeactivateDialog(client)"
-                      >
-                        <i class="pi pi-ban"></i>
-                      </button>
-                    } @else {
-                      <button
-                        type="button"
-                        class="action-button action-success"
-                        title="Activar cliente"
-                        (click)="activateClient(client)"
-                        [disabled]="isDeactivating"
-                      >
-                        <i class="pi pi-check-circle"></i>
-                      </button>
-                    }
-                  </div>
-                </td>
-              </tr>
+  <app-data-table
+    [columns]="tableColumns"
+    [data]="paginatedClients"
+    [totalRecords]="filteredClients.length"
+    [currentPage]="currentPage"
+    [pageSize]="pageSize"
+    [isLoading]="isLoading"
+    (pageChange)="onPageChanged($event)"
+  >
+    <ng-template #rowTemplate let-client>
+      <td>
+        <div class="client-cell">
+          <div class="client-avatar-mini">
+            {{ getInitials(client.nombres, client.apellidos) }}
+          </div>
+          <div class="client-name">
+            <strong>{{ client.nombres }} {{ client.apellidos }}</strong>
+            @if (client.razonSocial) {
+              <span>{{ client.razonSocial }}</span>
             }
-          }
-        </tbody>
-      </table>
-    </div>
+          </div>
+        </div>
+      </td>
 
-    <footer class="clients-table-footer">
-      <span>
-        Mostrando {{ startRecord }}–{{ endRecord }} de {{ filteredClients.length }} registros
-      </span>
+      <td>{{ client.tipoDocumento }} {{ client.numeroDocumento }}</td>
+      <td>{{ client.telefono || '-' }}</td>
+      <td>{{ client.email || '-' }}</td>
+      <td class="text-center">{{ client.totalVehiculos ?? 0 }}</td>
 
-      <div class="clients-pagination">
-        <button
-          type="button"
-          [disabled]="currentPage === 1"
-          aria-label="Página anterior"
-          (click)="goToPreviousPage()"
-        >
-          <i class="pi pi-chevron-left"></i>
-        </button>
-
-        <span class="active-page">
-          {{ currentPage }}
+      <td class="text-center">
+        <span [class]="client.activo ? 'chip-success' : 'chip-inactive'">
+          {{ client.activo ? 'Activo' : 'Inactivo' }}
         </span>
+      </td>
 
-        <button
-          type="button"
-          [disabled]="currentPage === totalPages"
-          aria-label="Página siguiente"
-          (click)="goToNextPage()"
-        >
-          <i class="pi pi-chevron-right"></i>
-        </button>
-      </div>
-    </footer>
-  </section>
+      <td class="text-center">
+        <div class="client-actions">
+          <button
+            type="button"
+            class="action-button"
+            title="Ver cliente"
+            (click)="openClientDetails(client.id)"
+          >
+            <i class="pi pi-eye"></i>
+          </button>
+
+          <button
+            type="button"
+            class="action-button"
+            title="Editar cliente"
+            (click)="openEditClient(client.id)"
+          >
+            <i class="pi pi-pencil"></i>
+          </button>
+
+          @if (client.activo) {
+            <button
+              type="button"
+              class="action-button action-danger"
+              title="Desactivar cliente"
+              (click)="openDeactivateDialog(client)"
+            >
+              <i class="pi pi-ban"></i>
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="action-button action-success"
+              title="Activar cliente"
+              (click)="activateClient(client)"
+            >
+              <i class="pi pi-check-circle"></i>
+            </button>
+          }
+        </div>
+      </td>
+    </ng-template>
+  </app-data-table>
 
   <app-confirmation-dialog
     [visible]="showDeactivateDialog"

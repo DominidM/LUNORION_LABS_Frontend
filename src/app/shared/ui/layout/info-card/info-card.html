@@ -1,0 +1,15 @@
+<article class="info-card">
+  <header class="info-card__header">
+    <div class="info-card__icon">
+      <i [class]="icon"></i>
+    </div>
+    <div class="info-card__titles">
+      <h3>{{ title }}</h3>
+      <p>{{ subtitle }}</p>
+    </div>
+  </header>
+
+  <div class="info-card__body">
+    <ng-content></ng-content>
+  </div>
+</article>
