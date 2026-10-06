@@ -1,0 +1,117 @@
+.suppliers-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.new-supplier-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  height: 40px;
+  padding: 0 var(--spacing-md);
+  background-color: var(--primary);
+  color: var(--on-primary);
+  border: none;
+  border-radius: var(--radius-default);
+  font: var(--text-label-md);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--primary) 85%, black);
+  }
+}
+
+.load-error {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-default);
+  background-color: var(--error-container, #fdecea);
+  color: var(--on-error-container, #8c1d18);
+  font: var(--text-body-md);
+}
+
+.supplier-cell {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.supplier-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    color: var(--on-surface);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  span {
+    font: var(--text-label-sm);
+    color: var(--on-surface-variant);
+  }
+}
+
+.supplier-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.action-button {
+  width: 36px;
+  height: 36px;
+  border: none !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  color: var(--outline, #7a7582);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 17px;
+    transition: transform 0.15s ease;
+  }
+
+  &:hover {
+    background-color: var(--surface-container, #f1ecf4) !important;
+    color: var(--primary) !important;
+
+    i {
+      transform: scale(1.15);
+    }
+  }
+
+  &.action-danger:hover {
+    background-color: var(--error-container) !important;
+    color: var(--on-error-container) !important;
+  }
+}
+
+.chip-inactive {
+  background-color: var(--surface-container-high);
+  color: var(--on-surface-variant);
+  border-radius: var(--radius-xl);
+  padding: 4px 12px;
+  font: var(--text-label-md);
+}
+
+.text-center {
+  text-align: center;
+}

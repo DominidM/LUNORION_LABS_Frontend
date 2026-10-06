@@ -7,7 +7,7 @@ export default [
     loadComponent: () => import('./layout-page/layout-page').then(m => m.LayoutPage),
     canActivate: [authGuard],
     children: [
-      { path: 'home', loadComponent: () => import('../dashboard/feature/home-page/home-page').then(m => m.HomePage) },
+      { path: 'home', loadComponent: () => import('../dashboard/feature/home-page/home-page').then(m => m.HomePage), data: { breadcrumb: 'Dashboard' } },
       { path: 'clients', loadChildren: () => import('../clients/clients.routes') },
       { path: 'vehicles', loadChildren: () => import('../vehicles/vehicles.routes') },
       { path: 'work-orders', loadChildren: () => import('../work-orders/work-orders.routes') },

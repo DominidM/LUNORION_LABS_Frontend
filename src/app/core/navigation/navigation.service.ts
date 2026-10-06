@@ -1,6 +1,5 @@
 import { Injectable, signal } from '@angular/core';
 import { SidebarItem } from '../../shared/ui/layout/sidebar/sidebar-item.interface';
-import { BreadcrumbItem } from '../../shared/ui/layout/breadcrumb/breadcrumb-item.interface';
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
@@ -17,12 +16,4 @@ export class NavigationService {
     { label: 'Reclamos', icon: 'pi pi-exclamation-triangle', route: '/dashboard/claims' },
     { label: 'Ajustes', icon: 'pi pi-cog', route: '/dashboard/settings' },
   ]);
-
-  readonly breadcrumbItems = signal<BreadcrumbItem[]>([
-    { label: 'Dashboard', route: '/dashboard/home' },
-  ]);
-
-  setBreadcrumbItems(items: BreadcrumbItem[]): void {
-    this.breadcrumbItems.set(items);
-  }
 }

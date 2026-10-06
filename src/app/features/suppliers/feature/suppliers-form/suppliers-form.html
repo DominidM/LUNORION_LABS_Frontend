@@ -1,159 +1,179 @@
-<div class="suppliers-form p-4">
-  <div class="flex align-items-center mb-4">
-    <p-button
-      icon="pi pi-arrow-left"
-      severity="secondary"
-      [text]="true"
-      (onClick)="onCancel()"
-      class="mr-3"
-    />
-    <h2 class="text-2xl font-bold m-0">
-      {{ isEdit ? 'Editar Proveedor' : 'Nuevo Proveedor' }}
-    </h2>
-  </div>
+<div class="supplier-page">
+  <app-page-header
+    [title]="isEdit ? 'Editar Proveedor' : 'Nuevo Proveedor'"
+    [subtitle]="isEdit ? 'Actualiza la información del proveedor.' : 'Completa la información del proveedor.'"
+    [showBackButton]="true"
+    (back)="onCancel()"
+  ></app-page-header>
 
-  @if (store.error()) {
-    <div class="p-3 mb-3 border-round bg-red-100 text-red-700">
-      {{ store.error() }}
-    </div>
-  }
+  <main class="page-content">
+    @if (store.error()) {
+      <div class="error-alert">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ store.error() }}</span>
+      </div>
+    }
 
-  @if (tenantLoading()) {
-    <div class="flex justify-content-center align-items-center p-4">
-      <i class="pi pi-spin pi-spinner text-2xl mr-2"></i>
-      <span>Cargando información del tenant...</span>
-    </div>
-  }
+    @if (tenantLoading()) {
+      <div class="tenant-alert">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Cargando información del tenant...</span>
+      </div>
+    } @else if (!tenantId()) {
+      <div class="tenant-alert tenant-alert--warning">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>
+          No se pudo obtener el tenant.
+          <a routerLink="/auth/login">Cierra sesión y vuelve a iniciar</a>.
+        </span>
+      </div>
+    }
 
-  @if (!tenantLoading() && !tenantId()) {
-    <div class="p-3 mb-3 border-round bg-yellow-100 text-yellow-700">
-      <i class="pi pi-exclamation-triangle mr-2"></i>
-      No se pudo obtener el tenant. 
-      <a routerLink="/auth/login" class="underline cursor-pointer">Cierra sesión y vuelve a iniciar</a>.
-    </div>
-  }
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      [class.form-disabled]="tenantLoading() || !tenantId()"
+    >
+      <app-form-card
+        title="Identificación"
+        subtitle="Datos fiscales y comerciales del proveedor."
+        icon="pi pi-building"
+      >
+        <div class="form-grid two-columns">
+          <div class="form-field">
+            <label for="ruc"> RUC <span>*</span> </label>
+            <input
+              id="ruc"
+              type="text"
+              formControlName="ruc"
+              placeholder="11 dígitos del RUC"
+              class="input-field"
+              [class.input-error]="isInvalid('ruc')"
+            />
+            @if (isInvalid('ruc')) {
+              <small>{{ getErrorMessage('ruc') }}</small>
+            }
+          </div>
 
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="formgrid grid" [class.opacity-50]="tenantLoading() || !tenantId()">
-    <div class="field col-12 md:col-6 mb-3">
-      <label for="ruc" class="block mb-2 font-medium">RUC *</label>
-      <input
-        id="ruc"
-        type="text"
-        pInputText
-        formControlName="ruc"
-        class="w-full"
-        placeholder="RUC del proveedor"
-      />
-      @if (form.get('ruc')?.invalid && form.get('ruc')?.touched) {
-        <small class="p-error block mt-1">El RUC es requerido</small>
-      }
-    </div>
+          <div class="form-field">
+            <label for="razonSocial"> Razón social <span>*</span> </label>
+            <input
+              id="razonSocial"
+              type="text"
+              formControlName="razonSocial"
+              placeholder="Ingresa la razón social"
+              class="input-field"
+              [class.input-error]="isInvalid('razonSocial')"
+            />
+            @if (isInvalid('razonSocial')) {
+              <small>{{ getErrorMessage('razonSocial') }}</small>
+            }
+          </div>
 
-    <div class="field col-12 md:col-6 mb-3">
-      <label for="razonSocial" class="block mb-2 font-medium">Razón Social *</label>
-      <input
-        id="razonSocial"
-        type="text"
-        pInputText
-        formControlName="razonSocial"
-        class="w-full"
-        placeholder="Razón social del proveedor"
-      />
-      @if (form.get('razonSocial')?.invalid && form.get('razonSocial')?.touched) {
-        <small class="p-error block mt-1">La razón social es requerida</small>
-      }
-    </div>
+          <div class="form-field full-width">
+            <label for="condicionesPago"> Condiciones de pago <span>*</span> </label>
+            <input
+              id="condicionesPago"
+              type="text"
+              formControlName="condicionesPago"
+              placeholder="Ej: Contado, 30 días, etc."
+              class="input-field"
+              [class.input-error]="isInvalid('condicionesPago')"
+            />
+            @if (isInvalid('condicionesPago')) {
+              <small>{{ getErrorMessage('condicionesPago') }}</small>
+            }
+          </div>
+        </div>
+      </app-form-card>
 
-    <div class="field col-12 md:col-6 mb-3">
-      <label for="contacto" class="block mb-2 font-medium">Contacto *</label>
-      <input
-        id="contacto"
-        type="text"
-        pInputText
-        formControlName="contacto"
-        class="w-full"
-        placeholder="Persona de contacto"
-      />
-      @if (form.get('contacto')?.invalid && form.get('contacto')?.touched) {
-        <small class="p-error block mt-1">El contacto es requerido</small>
-      }
-    </div>
+      <app-form-card
+        title="Contacto"
+        subtitle="Medios de comunicación del proveedor."
+        icon="pi pi-phone"
+      >
+        <div class="form-grid two-columns">
+          <div class="form-field">
+            <label for="contacto"> Persona de contacto <span>*</span> </label>
+            <input
+              id="contacto"
+              type="text"
+              formControlName="contacto"
+              placeholder="Nombre del contacto"
+              class="input-field"
+              [class.input-error]="isInvalid('contacto')"
+            />
+            @if (isInvalid('contacto')) {
+              <small>{{ getErrorMessage('contacto') }}</small>
+            }
+          </div>
 
-    <div class="field col-12 md:col-6 mb-3">
-      <label for="email" class="block mb-2 font-medium">Email *</label>
-      <input
-        id="email"
-        type="email"
-        pInputText
-        formControlName="email"
-        class="w-full"
-        placeholder="correo@ejemplo.com"
-      />
-      @if (form.get('email')?.invalid && form.get('email')?.touched) {
-        <small class="p-error block mt-1">Email válido requerido</small>
-      }
-    </div>
+          <div class="form-field">
+            <label for="telefono"> Teléfono <span>*</span> </label>
+            <input
+              id="telefono"
+              type="text"
+              formControlName="telefono"
+              placeholder="999 999 999"
+              class="input-field"
+              [class.input-error]="isInvalid('telefono')"
+            />
+            @if (isInvalid('telefono')) {
+              <small>{{ getErrorMessage('telefono') }}</small>
+            }
+          </div>
 
-    <div class="field col-12 md:col-6 mb-3">
-      <label for="telefono" class="block mb-2 font-medium">Teléfono *</label>
-      <input
-        id="telefono"
-        type="text"
-        pInputText
-        formControlName="telefono"
-        class="w-full"
-        placeholder="999 999 999"
-      />
-      @if (form.get('telefono')?.invalid && form.get('telefono')?.touched) {
-        <small class="p-error block mt-1">El teléfono es requerido</small>
-      }
-    </div>
+          <div class="form-field">
+            <label for="email"> Correo electrónico <span>*</span> </label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="correo@ejemplo.com"
+              class="input-field"
+              [class.input-error]="isInvalid('email')"
+            />
+            @if (isInvalid('email')) {
+              <small>{{ getErrorMessage('email') }}</small>
+            }
+          </div>
 
-    <div class="field col-12 mb-3">
-      <label for="direccion" class="block mb-2 font-medium">Dirección *</label>
-      <input
-        id="direccion"
-        type="text"
-        pInputText
-        formControlName="direccion"
-        class="w-full"
-        placeholder="Dirección completa"
-      />
-      @if (form.get('direccion')?.invalid && form.get('direccion')?.touched) {
-        <small class="p-error block mt-1">La dirección es requerida</small>
-      }
-    </div>
+          <div class="form-field full-width">
+            <label for="direccion"> Dirección <span>*</span> </label>
+            <input
+              id="direccion"
+              type="text"
+              formControlName="direccion"
+              placeholder="Dirección completa"
+              class="input-field"
+              [class.input-error]="isInvalid('direccion')"
+            />
+            @if (isInvalid('direccion')) {
+              <small>{{ getErrorMessage('direccion') }}</small>
+            }
+          </div>
+        </div>
+      </app-form-card>
 
-    <div class="field col-12 mb-3">
-      <label for="condicionesPago" class="block mb-2 font-medium">Condiciones de Pago *</label>
-      <input
-        id="condicionesPago"
-        type="text"
-        pInputText
-        formControlName="condicionesPago"
-        class="w-full"
-        placeholder="Ej: Contado, 30 días, etc."
-      />
-      @if (form.get('condicionesPago')?.invalid && form.get('condicionesPago')?.touched) {
-        <small class="p-error block mt-1">Las condiciones de pago son requeridas</small>
-      }
-    </div>
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" [disabled]="isSubmitting()" (click)="onCancel()">
+          Cancelar
+        </button>
 
-    <div class="col-12 flex justify-content-end gap-2 mt-3">
-      <p-button
-        label="Cancelar"
-        icon="pi pi-times"
-        severity="secondary"
-        [outlined]="true"
-        (onClick)="onCancel()"
-      />
-      <p-button
-        [label]="isEdit ? 'Actualizar' : 'Guardar'"
-        icon="pi pi-check"
-        type="submit"
-        [loading]="store.loading()"
-        [disabled]="form.invalid || store.loading()"
-      />
-    </div>
-  </form>
+        <button
+          type="submit"
+          class="btn-save"
+          [disabled]="form.invalid || isSubmitting() || tenantLoading() || !tenantId()"
+        >
+          @if (isSubmitting()) {
+            <i class="pi pi-spin pi-spinner"></i>
+            {{ isEdit ? 'Actualizando...' : 'Guardando...' }}
+          } @else {
+            <i class="pi pi-check"></i>
+            {{ isEdit ? 'Actualizar proveedor' : 'Guardar proveedor' }}
+          }
+        </button>
+      </div>
+    </form>
+  </main>
 </div>

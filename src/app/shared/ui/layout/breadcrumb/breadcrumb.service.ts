@@ -34,16 +34,14 @@ export class BreadcrumbService {
 
     for (const child of children) {
       const routeURL: string = child.snapshot.url.map(segment => segment.path).join('/');
-      if (routeURL !== '') {
-        url += `/${routeURL}`;
-      }
+      const childURL = routeURL !== '' ? `${url}/${routeURL}` : url;
 
       const label = child.snapshot.data['breadcrumb'];
       if (label && !breadcrumbs.some(b => b.label === label)) {
-        breadcrumbs.push({ label, route: url });
+        breadcrumbs.push({ label, route: childURL });
       }
 
-      return this.buildBreadcrumbs(child, url, breadcrumbs);
+      this.buildBreadcrumbs(child, childURL, breadcrumbs);
     }
 
     return breadcrumbs;
