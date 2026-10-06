@@ -95,6 +95,12 @@ export class SuppliersList implements OnInit {
     this.loadSuppliers();
   }
 
+  onPageSizeChanged(size: number): void {
+    this.pageSize = size;
+    this.currentPage = 1;
+    this.loadSuppliers();
+  }
+
   onNew(): void {
     this.router.navigate(['/dashboard/suppliers/new']);
   }

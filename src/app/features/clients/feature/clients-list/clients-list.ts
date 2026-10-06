@@ -141,6 +141,11 @@ export class ClientsList implements OnInit {
     this.currentPage = page;
   }
 
+  onPageSizeChanged(size: number): void {
+    this.pageSize = size;
+    this.currentPage = 1;
+  }
+
   get paginatedClients(): Client[] {
     const start = (this.currentPage - 1) * this.pageSize;
     return this.filteredClients.slice(start, start + this.pageSize);

@@ -32,7 +32,9 @@
     [currentPage]="currentPage"
     [pageSize]="pageSize"
     [isLoading]="isLoading"
+    [showPageSize]="true"
     (pageChange)="onPageChanged($event)"
+    (pageSizeChange)="onPageSizeChanged($event)"
   >
     <ng-template #rowTemplate let-supplier>
       <td>

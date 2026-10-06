@@ -16,8 +16,12 @@ export class DataTable {
   @Input() pageSize = 10;
   @Input() currentPage = 1;
   @Input() isLoading = false;
+  @Input() showPageSize = false;
 
   @Output() pageChange = new EventEmitter<number>();
+  @Output() pageSizeChange = new EventEmitter<number>();
+
+  readonly pageSizes = [5, 10, 25, 50];
 
   @ContentChild('rowTemplate') rowTemplate?: TemplateRef<any>;
 
@@ -45,6 +49,13 @@ export class DataTable {
   changePage(page: number): void {
     if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
       this.pageChange.emit(page);
+    }
+  }
+
+  onPageSizeChange(event: Event): void {
+    const value = Number((event.target as HTMLSelectElement).value);
+    if (!Number.isNaN(value) && value > 0 && value !== this.pageSize) {
+      this.pageSizeChange.emit(value);
     }
   }
 }

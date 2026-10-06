@@ -44,9 +44,9 @@
     </table>
   </div>
 
-  <div class="table-footer">
+  <div class="table-footer" [class.table-footer--split]="showPageSize">
     <span class="records-info">
-      Mostrando {{ fromRecord }}–{{ toRecord }} de {{ totalRecords }} registros
+      Mostrando {{ fromRecord }}&ndash;{{ toRecord }} de {{ totalRecords }} registros
     </span>
 
     <div class="pagination">
@@ -76,5 +76,19 @@
         <i class="pi pi-chevron-right"></i>
       </button>
     </div>
+
+    @if (showPageSize) {
+      <div class="page-size">
+        <span class="page-size__label">Filas por página</span>
+        <select class="page-size__select" [value]="pageSize" (change)="onPageSizeChange($event)">
+          @for (size of pageSizes; track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+          @if (!pageSizes.includes(pageSize)) {
+            <option [value]="pageSize">{{ pageSize }}</option>
+          }
+        </select>
+      </div>
+    }
   </div>
 </div>

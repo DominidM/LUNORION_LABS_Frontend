@@ -89,13 +89,48 @@
 }
 
 .records-info {
+  flex: 1;
   font: var(--text-label-sm);
   color: var(--on-surface-variant);
+}
+
+.page-size {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex: 1;
+  justify-content: flex-end;
+
+  &__label {
+    font: var(--text-label-sm);
+    color: var(--on-surface-variant);
+    white-space: nowrap;
+  }
+
+  &__select {
+    min-width: 74px;
+    height: 34px;
+    padding: 0 var(--spacing-sm);
+    border: var(--border-subtle);
+    border-radius: var(--radius-md);
+    background-color: var(--surface-container-lowest);
+    color: var(--on-surface);
+    font: var(--text-label-md);
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s ease;
+
+    &:focus {
+      border-color: var(--primary);
+    }
+  }
 }
 
 .pagination {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex: 1;
   gap: 6px;
 
   &-btn {
@@ -134,5 +169,32 @@
     i {
       font-size: 11px;
     }
+  }
+}
+
+.table-footer--split .pagination {
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .table-footer {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .records-info,
+  .pagination,
+  .page-size {
+    flex: none;
+    justify-content: center;
+  }
+
+  .page-size {
+    order: 1;
+  }
+
+  .pagination {
+    order: 2;
   }
 }
