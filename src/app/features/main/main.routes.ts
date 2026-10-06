@@ -4,7 +4,7 @@ import { authGuard } from '../../core/auth/auth.guard';
 export default [
   {
     path: '',
-    loadComponent: () => import('./layout-page/layout-page').then(m => m.LayoutPage),
+    loadComponent: () => import('../../shared/ui/layout/layout-page/layout-page').then(m => m.LayoutPage),
     canActivate: [authGuard],
     children: [
       { path: 'home', loadComponent: () => import('../dashboard/feature/home-page/home-page').then(m => m.HomePage), data: { breadcrumb: 'Dashboard' } },
