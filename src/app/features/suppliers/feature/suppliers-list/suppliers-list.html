@@ -1,94 +1,105 @@
-<div class="suppliers-list p-4">
-  <div class="flex justify-content-between align-items-center mb-4">
-    <h2 class="text-2xl font-bold m-0">Proveedores</h2>
-    <p-button
-      label="Nuevo Proveedor"
-      icon="pi pi-plus"
-      (onClick)="onNew()"
-    />
-  </div>
+<div class="suppliers-page">
+  <app-page-header
+    title="Proveedores"
+    subtitle="Gestiona los proveedores registrados en el taller."
+    [showBackButton]="false"
+  >
+    <div actions class="header-actions">
+      <button type="button" class="new-supplier-button" (click)="onNew()">
+        <i class="pi pi-plus"></i>
+        <span>Nuevo proveedor</span>
+      </button>
+    </div>
+  </app-page-header>
 
   @if (store.error()) {
-    <div class="p-3 mb-3 border-round bg-red-100 text-red-700">
-      {{ store.error() }}
-    </div>
+    <div class="load-error">{{ store.error() }}</div>
   }
 
-  <p-table
-    [value]="store.suppliers()"
-    [loading]="store.loading()"
-    [paginator]="true"
-    [rows]="10"
-    [rowsPerPageOptions]="[5, 10, 20]"
-    [showCurrentPageReport]="true"
-    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} proveedores"
-    [globalFilterFields]="['razonSocial', 'ruc', 'email']"
-    styleClass="p-datatable-sm"
+  <app-filter-bar
+    searchPlaceholder="Buscar por razón social, RUC, contacto o email..."
+    [showStatusFilter]="true"
+    [showDocumentTypeFilter]="false"
+    [showDateFilters]="false"
+    (filterChange)="onFilterChange($event)"
   >
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Razón Social</th>
-        <th>RUC</th>
-        <th>Email</th>
-        <th>Teléfono</th>
-        <th>Estado</th>
-        <th class="text-center" style="width: 200px;">Acciones</th>
-      </tr>
-    </ng-template>
+  </app-filter-bar>
 
-    <ng-template pTemplate="body" let-supplier>
-      <tr>
-        <td>{{ supplier.razonSocial }}</td>
-        <td>{{ supplier.ruc }}</td>
-        <td>{{ supplier.email }}</td>
-        <td>{{ supplier.telefono }}</td>
-        <td>
-          <p-tag
-            [value]="supplier.activo ? 'Activo' : 'Inactivo'"
-            [severity]="supplier.activo ? 'success' : 'danger'"
-          />
-        </td>
-        <td class="text-center">
-          <p-button
-            icon="pi pi-eye"
-            severity="secondary"
-            [text]="true"
-            [rounded]="true"
-            (onClick)="onView(supplier.id)"
-            pTooltip="Ver detalle"
-          />
-          <p-button
-            icon="pi pi-pencil"
-            severity="secondary"
-            [text]="true"
-            [rounded]="true"
-            (onClick)="onEdit(supplier.id)"
-            pTooltip="Editar"
-            class="ml-2"
-          />
+  <app-data-table
+    [columns]="tableColumns"
+    [data]="store.suppliers()"
+    [totalRecords]="store.totalElements()"
+    [currentPage]="currentPage"
+    [pageSize]="pageSize"
+    [isLoading]="isLoading"
+    [showPageSize]="true"
+    (pageChange)="onPageChanged($event)"
+    (pageSizeChange)="onPageSizeChanged($event)"
+  >
+    <ng-template #rowTemplate let-supplier>
+      <td>
+        <div class="supplier-cell">
+          <div class="supplier-name">
+            <strong>{{ supplier.razonSocial }}</strong>
+            @if (supplier.contacto) {
+              <span>{{ supplier.contacto }}</span>
+            }
+          </div>
+        </div>
+      </td>
+
+      <td>{{ supplier.ruc }}</td>
+      <td>{{ supplier.email || '-' }}</td>
+      <td>{{ supplier.telefono || '-' }}</td>
+
+      <td class="text-center">
+        <span [class]="supplier.activo ? 'chip-success' : 'chip-inactive'">
+          {{ supplier.activo ? 'Activo' : 'Inactivo' }}
+        </span>
+      </td>
+
+      <td class="text-center">
+        <div class="supplier-actions">
+          <button
+            type="button"
+            class="action-button"
+            title="Ver proveedor"
+            (click)="onView(supplier.id)"
+          >
+            <i class="pi pi-eye"></i>
+          </button>
+
+          <button
+            type="button"
+            class="action-button"
+            title="Editar proveedor"
+            (click)="onEdit(supplier.id)"
+          >
+            <i class="pi pi-pencil"></i>
+          </button>
+
           @if (supplier.activo) {
-            <p-button
-              icon="pi pi-ban"
-              severity="danger"
-              [text]="true"
-              [rounded]="true"
-              (onClick)="onDeactivate(supplier)"
-              pTooltip="Desactivar"
-              class="ml-2"
-            />
+            <button
+              type="button"
+              class="action-button action-danger"
+              title="Desactivar proveedor"
+              (click)="openDeactivateDialog(supplier)"
+            >
+              <i class="pi pi-ban"></i>
+            </button>
           }
-        </td>
-      </tr>
+        </div>
+      </td>
     </ng-template>
+  </app-data-table>
 
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="6" class="text-center p-4 text-gray-500">
-          No hay proveedores registrados
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+  <app-confirmation-dialog
+    [visible]="showDeactivateDialog"
+    title="Desactivar proveedor"
+    [message]="'¿Estás seguro de que deseas desactivar a ' + (selected?.razonSocial ?? '') + '?'"
+    type="warning"
+    (confirm)="onConfirmDeactivate()"
+    (cancel)="closeDeactivateDialog()"
+  >
+  </app-confirmation-dialog>
 </div>
-
-<p-confirmDialog />

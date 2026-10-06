@@ -1,25 +1,10 @@
 <div class="client-page">
-  <header class="page-header">
-    <div class="header-content">
-      <button type="button" class="back-button" (click)="cancel()">
-        <i class="pi pi-arrow-left"></i>
-      </button>
-
-      <div>
-        <h1>
-          {{ isEditMode ? 'Editar Cliente' : 'Registrar Nuevo Cliente' }}
-        </h1>
-
-        <p>
-          {{
-            isEditMode
-              ? 'Actualiza la información del cliente.'
-              : 'Completa la información del cliente.'
-          }}
-        </p>
-      </div>
-    </div>
-  </header>
+  <app-page-header
+    [title]="isEditMode ? 'Editar Cliente' : 'Registrar Nuevo Cliente'"
+    [subtitle]="isEditMode ? 'Actualiza la información del cliente.' : 'Completa la información del cliente.'"
+    [showBackButton]="true"
+    (back)="cancel()"
+  ></app-page-header>
 
   <main class="page-content">
     @if (saveError) {
@@ -30,22 +15,14 @@
     }
 
     <form [formGroup]="clientForm" (ngSubmit)="submitClient()">
-      <section class="form-card">
-        <div class="section-header">
-          <div class="section-icon">
-            <i class="pi pi-user"></i>
-          </div>
-
-          <div>
-            <h2>Datos de contacto</h2>
-            <p>Información principal del cliente.</p>
-          </div>
-        </div>
-
+      <app-form-card
+        title="Datos de contacto"
+        subtitle="Información principal del cliente."
+        icon="pi pi-user"
+      >
         <div class="form-grid three-columns">
           <div class="form-field">
             <label for="nombres"> Nombres <span>*</span> </label>
-
             <input
               id="nombres"
               type="text"
@@ -54,7 +31,6 @@
               class="input-field"
               [class.input-error]="isInvalid('nombres')"
             />
-
             @if (isInvalid('nombres')) {
               <small>{{ getErrorMessage('nombres') }}</small>
             }
@@ -62,7 +38,6 @@
 
           <div class="form-field">
             <label for="apellidos"> Apellidos <span>*</span> </label>
-
             <input
               id="apellidos"
               type="text"
@@ -71,7 +46,6 @@
               class="input-field"
               [class.input-error]="isInvalid('apellidos')"
             />
-
             @if (isInvalid('apellidos')) {
               <small>{{ getErrorMessage('apellidos') }}</small>
             }
@@ -79,7 +53,6 @@
 
           <div class="form-field">
             <label for="tipoDocumento"> Tipo de documento <span>*</span> </label>
-
             <select id="tipoDocumento" formControlName="tipoDocumento" class="input-field">
               <option value="DNI">DNI</option>
               <option value="RUC">RUC</option>
@@ -89,7 +62,6 @@
 
           <div class="form-field">
             <label for="numeroDocumento"> N.° de documento <span>*</span> </label>
-
             <input
               id="numeroDocumento"
               type="text"
@@ -98,7 +70,6 @@
               class="input-field"
               [class.input-error]="isInvalid('numeroDocumento')"
             />
-
             @if (isInvalid('numeroDocumento')) {
               <small>{{ getErrorMessage('numeroDocumento') }}</small>
             }
@@ -106,7 +77,6 @@
 
           <div class="form-field">
             <label for="email"> Correo electrónico <span>*</span> </label>
-
             <input
               id="email"
               type="email"
@@ -115,7 +85,6 @@
               class="input-field"
               [class.input-error]="isInvalid('email')"
             />
-
             @if (isInvalid('email')) {
               <small>{{ getErrorMessage('email') }}</small>
             }
@@ -123,7 +92,6 @@
 
           <div class="form-field">
             <label for="telefono"> Teléfono <span>*</span> </label>
-
             <input
               id="telefono"
               type="text"
@@ -132,7 +100,6 @@
               class="input-field"
               [class.input-error]="isInvalid('telefono')"
             />
-
             @if (isInvalid('telefono')) {
               <small>{{ getErrorMessage('telefono') }}</small>
             }
@@ -140,7 +107,6 @@
 
           <div class="form-field full-width">
             <label for="direccion"> Dirección <span>*</span> </label>
-
             <input
               id="direccion"
               type="text"
@@ -149,30 +115,21 @@
               class="input-field"
               [class.input-error]="isInvalid('direccion')"
             />
-
             @if (isInvalid('direccion')) {
               <small>{{ getErrorMessage('direccion') }}</small>
             }
           </div>
         </div>
-      </section>
+      </app-form-card>
 
-      <section class="form-card">
-        <div class="section-header">
-          <div class="section-icon">
-            <i class="pi pi-building"></i>
-          </div>
-
-          <div>
-            <h2>Datos fiscales</h2>
-            <p>Información fiscal del cliente, si corresponde.</p>
-          </div>
-        </div>
-
+      <app-form-card
+        title="Datos fiscales"
+        subtitle="Información fiscal del cliente, si corresponde."
+        icon="pi pi-building"
+      >
         <div class="form-grid">
           <div class="form-field">
             <label for="razonSocial"> Razón social </label>
-
             <input
               id="razonSocial"
               type="text"
@@ -181,13 +138,12 @@
               class="input-field"
               [class.input-error]="isInvalid('razonSocial')"
             />
-
             @if (isInvalid('razonSocial')) {
               <small>{{ getErrorMessage('razonSocial') }}</small>
             }
           </div>
         </div>
-      </section>
+      </app-form-card>
 
       <div class="form-actions">
         <button type="button" class="btn-cancel" [disabled]="isSaving" (click)="cancel()">

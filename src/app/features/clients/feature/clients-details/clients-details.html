@@ -1,23 +1,37 @@
 <div class="client-details-page">
-  <header class="page-header">
-    <div class="page-header__content">
-      <button type="button" class="back-button" title="Volver a clientes" (click)="goBack()">
-        <i class="pi pi-arrow-left"></i>
-      </button>
+  <app-page-header
+    title="Detalle del cliente"
+    subtitle="Consulta la información y actividad del cliente."
+    [showBackButton]="true"
+    (back)="goBack()"
+  >
+    <div actions class="header-actions">
+      @if (client) {
+        <div class="export-dropdown">
+          <button type="button" class="export-button">
+            <i class="pi pi-download"></i>
+            <span>Exportar</span>
+            <i class="pi pi-chevron-down"></i>
+          </button>
+          <div class="export-menu">
+            <button type="button" (click)="exportDetailToPdf()">
+              <i class="pi pi-file-pdf"></i>
+              Exportar a PDF
+            </button>
+            <button type="button" (click)="exportDetailToXml()">
+              <i class="pi pi-file"></i>
+              Exportar a XML
+            </button>
+          </div>
+        </div>
 
-      <div>
-        <h1>Detalle del cliente</h1>
-        <p>Consulta la información y actividad del cliente.</p>
-      </div>
+        <button type="button" class="edit-button" (click)="editClient()">
+          <i class="pi pi-pencil"></i>
+          <span>Editar cliente</span>
+        </button>
+      }
     </div>
-
-    @if (client) {
-      <button type="button" class="edit-button" (click)="editClient()">
-        <i class="pi pi-pencil"></i>
-        <span>Editar cliente</span>
-      </button>
-    }
-  </header>
+  </app-page-header>
 
   <main class="page-content">
     @if (isLoading) {
@@ -62,17 +76,11 @@
       </section>
 
       <section class="details-grid">
-        <article class="details-card">
-          <div class="details-card__header">
-            <div class="details-card__icon">
-              <i class="pi pi-user"></i>
-            </div>
-            <div>
-              <h3>Información personal</h3>
-              <p>Datos principales del cliente</p>
-            </div>
-          </div>
-
+        <app-form-card
+          title="Información personal"
+          subtitle="Datos principales del cliente"
+          icon="pi pi-user"
+        >
           <div class="details-list">
             <div class="detail-item">
               <span class="detail-item__label">Nombres</span>
@@ -94,19 +102,13 @@
               <span class="detail-item__value">{{ client.numeroDocumento || '-' }}</span>
             </div>
           </div>
-        </article>
+        </app-form-card>
 
-        <article class="details-card">
-          <div class="details-card__header">
-            <div class="details-card__icon">
-              <i class="pi pi-phone"></i>
-            </div>
-            <div>
-              <h3>Información de contacto</h3>
-              <p>Medios de comunicación</p>
-            </div>
-          </div>
-
+        <app-form-card
+          title="Información de contacto"
+          subtitle="Medios de comunicación"
+          icon="pi pi-phone"
+        >
           <div class="details-list">
             <div class="detail-item">
               <span class="detail-item__label">Teléfono</span>
@@ -123,7 +125,7 @@
               <span class="detail-item__value">{{ client.direccion || '-' }}</span>
             </div>
           </div>
-        </article>
+        </app-form-card>
       </section>
 
       <section class="profitability-section">
@@ -193,46 +195,36 @@
         </div>
 
         @if (workHistory.length > 0) {
-          <div class="history-card">
-            <div class="history-table-wrapper">
-              <table class="history-table">
-                <thead>
-                  <tr>
-                    <th>Orden</th>
-                    <th>Descripción</th>
-                    <th>Estado</th>
-                    <th>Fecha</th>
-                  </tr>
-                </thead>
+          <app-data-table
+            [columns]="historyColumns"
+            [data]="workHistory"
+            [totalRecords]="workHistory.length"
+            [pageSize]="5"
+            [currentPage]="1"
+            [isLoading]="false"
+          >
+            <ng-template #rowTemplate let-work>
+              <td>
+                <strong>{{ work.ordenTrabajoId }}</strong>
+              </td>
 
-                <tbody>
-                  @for (work of workHistory; track work.id) {
-                    <tr>
-                      <td>
-                        <strong>{{ work.ordenTrabajoId }}</strong>
-                      </td>
+              <td>
+                <span class="work-description">
+                  {{ work.descripcion || '-' }}
+                </span>
+              </td>
 
-                      <td>
-                        <span class="work-description">
-                          {{ work.descripcion || '-' }}
-                        </span>
-                      </td>
+              <td class="text-center">
+                <span [class]="getWorkStatusClass(work.estado)">
+                  {{ work.estado || 'Sin estado' }}
+                </span>
+              </td>
 
-                      <td>
-                        <span [class]="getWorkStatusClass(work.estado)">
-                          {{ work.estado || 'Sin estado' }}
-                        </span>
-                      </td>
-
-                      <td>
-                        {{ formatDate(work.fechaCreacion) }}
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
+              <td class="text-center">
+                {{ formatDate(work.fechaCreacion) }}
+              </td>
+            </ng-template>
+          </app-data-table>
         } @else {
           <div class="section-empty section-empty--card">
             <div class="section-empty__icon">

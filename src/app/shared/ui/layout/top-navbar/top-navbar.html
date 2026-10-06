@@ -1,10 +1,10 @@
 <header class="top-navbar" [style.background]="backgroundColor()">
   <div class="left-section">
-    <app-breadcrumb [items]="breadcrumbItems()" />
+    <app-breadcrumb />
   </div>
 
   <div class="right-section">
-    <button class="icon-btn">
+    <button type="button" class="icon-btn" aria-label="Notificaciones">
       <i class="pi pi-bell"></i>
       @if (notifications() > 0) {
         <span class="badge">
@@ -26,12 +26,12 @@
       <i [class]="dropdownOpen() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
       @if (dropdownOpen()) {
         <div class="user-dropdown">
-          <button>
+          <button type="button">
             <i class="pi pi-user"></i>
             <span>Mi perfil</span>
           </button>
 
-          <button>
+          <button type="button">
             <i class="pi pi-sign-out"></i>
             <span>Cerrar sesión</span>
           </button>

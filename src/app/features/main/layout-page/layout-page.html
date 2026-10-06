@@ -7,12 +7,7 @@
   />
 
   <div class="dashboard-main">
-    <app-top-navbar
-      [breadcrumbItems]="nav.breadcrumbItems()"
-      [userName]="layout.userName()"
-      [userRole]="layout.userRole()"
-    />
-
+    <app-top-navbar/>
     <main class="dashboard-content">
       <router-outlet />
     </main>

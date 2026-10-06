@@ -1,0 +1,107 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.page-header-card {
+  position: relative;
+  background-color: var(--surface-container-lowest, #ffffff);
+  border: var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--elevation-1);
+  margin-bottom: var(--spacing-lg);
+  overflow: visible;
+  z-index: 20;
+}
+
+.page-header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg);
+  gap: var(--spacing-md);
+}
+
+.page-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.page-header-titles {
+  h1 {
+    margin: 0;
+    font: var(--text-headline-lg);
+    color: var(--on-surface);
+  }
+
+  p {
+    margin: var(--spacing-xs) 0 0;
+    font: var(--text-body-md);
+    color: var(--on-surface-variant);
+  }
+}
+
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  position: relative;
+}
+
+.page-header-accent-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--primary);
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+  pointer-events: none;
+}
+
+.back-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  border: none; 
+  outline: none;
+  background-color: var(--surface-container-high); 
+  color: var(--on-surface-variant); 
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  i {
+    font-size: 16px;
+    transition: transform 0.15s ease;
+  }
+
+  &:hover {
+    background-color: var(--primary-fixed);
+    color: var(--primary);
+    i {
+      transform: translateX(-2px);
+    }
+  }
+
+  &:active {
+    background-color: var(--primary-fixed-dim);
+  }
+}
+
+@media (max-width: 768px) {
+  .page-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-md);
+  }
+
+  .page-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

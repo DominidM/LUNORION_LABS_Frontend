@@ -1,0 +1,59 @@
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  background-color: var(--surface-container-lowest, #ffffff);
+  border: 1px solid var(--outline-variant, #e6e0e9);
+  border-radius: 12px;
+  min-width: 200px;
+  flex: 1;
+
+  .icon-container {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+  }
+
+  &.variant-primary .icon-container {
+    background-color: #ede7f6;
+    color: #6750a4;
+  }
+
+  &.variant-warning .icon-container {
+    background-color: #fff8e1;
+    color: #f57f17;
+  }
+
+  &.variant-success .icon-container {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+
+  &.variant-info .icon-container {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+
+  .stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .stat-label {
+      font-size: 0.8125rem;
+      color: var(--on-surface-variant, #79747e);
+      font-weight: 500;
+    }
+
+    .stat-value {
+      font-size: 1.25rem;
+      color: var(--on-surface, #1d1b20);
+      font-weight: 700;
+    }
+  }
+}

@@ -1,0 +1,23 @@
+<header class="page-header-card">
+  <div class="page-header-content">
+    <div class="page-header-left">
+      @if (showBackButton) {
+        <button type="button" class="back-btn" title="Volver" (click)="onBack()">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+      }
+      <div class="page-header-titles">
+        <h1>{{ title }}</h1>
+        @if (subtitle) {
+          <p>{{ subtitle }}</p>
+        }
+      </div>
+    </div>
+
+    <div class="page-header-actions">
+      <ng-content select="[actions]"></ng-content>
+    </div>
+  </div>
+  
+  <div class="page-header-accent-line"></div>
+</header>

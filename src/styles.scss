@@ -1,4 +1,5 @@
 @use "tailwindcss";
+@use "styles/components";
 @import "primeicons/primeicons.css";
 
 :root {
@@ -341,26 +342,42 @@ body {
 }
 
 .input-field {
-  background-color: var(--surface-container-lowest);
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
   border: var(--border-subtle);
-  border-radius: var(--radius-default);
-  padding: 10px 12px;
-  font: var(--text-body-md);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-container-lowest);
   color: var(--on-surface);
+  font: var(--text-body-md);
   outline: none;
-  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   &::placeholder {
     color: var(--on-surface-variant);
+    opacity: 0.65;
   }
 
   &:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 25%, transparent);
+    box-shadow: 0 0 0 2px var(--primary-container);
+  }
+
+  &.input-error {
+    border-color: var(--error);
   }
 
   &.error {
     border-color: var(--error);
     box-shadow: 0 0 0 2px color-mix(in srgb, var(--error) 25%, transparent);
   }
+}
+
+.chip-inactive {
+  background-color: var(--surface-container-high);
+  color: var(--on-surface-variant);
+  border-radius: var(--radius-xl);
+  padding: 4px 12px;
+  font: var(--text-label-md);
 }

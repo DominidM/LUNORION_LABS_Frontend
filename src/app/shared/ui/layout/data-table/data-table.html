@@ -1,0 +1,94 @@
+<div class="table-container">
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          @for (col of columns; track col.field) {
+            <th [style.width]="col.width || 'auto'" [style.text-align]="col.align || 'left'">
+              {{ col.header }}
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @if (isLoading) {
+          <tr>
+            <td [attr.colspan]="columns.length" class="text-center py-5">
+              <i class="pi pi-spin pi-spinner text-primary text-xl"></i>
+              <p class="mt-2 text-muted">Cargando registros...</p>
+            </td>
+          </tr>
+        } @else if (data.length === 0) {
+          <tr>
+            <td [attr.colspan]="columns.length" class="text-center py-5">
+              <i class="pi pi-inbox text-3xl text-muted"></i>
+              <p class="mt-2 text-muted">No se encontraron registros</p>
+            </td>
+          </tr>
+        } @else {
+          @for (item of data; track item.id || $index) {
+            <tr>
+              @if (rowTemplate) {
+                <ng-container *ngTemplateOutlet="rowTemplate; context: { $implicit: item }"></ng-container>
+              } @else {
+                @for (col of columns; track col.field) {
+                  <td [style.text-align]="col.align || 'left'">
+                    {{ item[col.field] ?? '-' }}
+                  </td>
+                }
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <div class="table-footer" [class.table-footer--split]="showPageSize">
+    <span class="records-info">
+      Mostrando {{ fromRecord }}&ndash;{{ toRecord }} de {{ totalRecords }} registros
+    </span>
+
+    <div class="pagination">
+      <button 
+        type="button" 
+        class="pagination-btn" 
+        [disabled]="currentPage === 1" 
+        (click)="changePage(currentPage - 1)">
+        <i class="pi pi-chevron-left"></i>
+      </button>
+
+      @for (p of pages; track p) {
+        <button 
+          type="button" 
+          class="pagination-btn" 
+          [class.active]="p === currentPage" 
+          (click)="changePage(p)">
+          {{ p }}
+        </button>
+      }
+
+      <button 
+        type="button" 
+        class="pagination-btn" 
+        [disabled]="currentPage === totalPages" 
+        (click)="changePage(currentPage + 1)">
+        <i class="pi pi-chevron-right"></i>
+      </button>
+    </div>
+
+    @if (showPageSize) {
+      <div class="page-size">
+        <span class="page-size__label">Filas por página</span>
+        <select class="page-size__select" [value]="pageSize" (change)="onPageSizeChange($event)">
+          @for (size of pageSizes; track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+          @if (!pageSizes.includes(pageSize)) {
+            <option [value]="pageSize">{{ pageSize }}</option>
+          }
+        </select>
+      </div>
+    }
+  </div>
+</div>

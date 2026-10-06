@@ -1,34 +1,29 @@
 import { Routes } from '@angular/router';
-import { ClientHttpService } from './data-access/api/client-http.service';
 
 export default [
   {
     path: '',
-    providers: [ClientHttpService],
+    data: { breadcrumb: 'Clientes' },
     children: [
       {
         path: '',
-        loadComponent: () =>
-          import('./feature/clients-list/clients-list')
-            .then(m => m.ClientsList)
+        loadComponent: () => import('./feature/clients-list/clients-list').then(m => m.ClientsList),
+        data: { breadcrumb: '' }
       },
       {
         path: 'new',
-        loadComponent: () =>
-          import('./feature/clients-form/clients-form')
-            .then(m => m.ClientsForm)
-      },
-      {
-        path: ':id/edit',
-        loadComponent: () =>
-          import('./feature/clients-form/clients-form')
-            .then(m => m.ClientsForm)
+        loadComponent: () => import('./feature/clients-form/clients-form').then(m => m.ClientsForm),
+        data: { breadcrumb: 'Registrar Nuevo Cliente' }
       },
       {
         path: ':id',
-        loadComponent: () =>
-          import('./feature/clients-details/clients-details')
-            .then(m => m.ClientsDetails)
+        loadComponent: () => import('./feature/clients-details/clients-details').then(m => m.ClientsDetails),
+        data: { breadcrumb: 'Detalle del Cliente' }
+      },
+      {
+        path: ':id/edit',
+        loadComponent: () => import('./feature/clients-form/clients-form').then(m => m.ClientsForm),
+        data: { breadcrumb: 'Editar Cliente' }
       }
     ]
   }

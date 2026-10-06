@@ -1,89 +1,110 @@
-<div class="suppliers-details p-4">
-  <div class="flex align-items-center mb-4">
-    <p-button
-      icon="pi pi-arrow-left"
-      severity="secondary"
-      [text]="true"
-      (onClick)="onBack()"
-      class="mr-3"
-    />
-    <h2 class="text-2xl font-bold m-0">Detalle del Proveedor</h2>
-  </div>
-
-  @if (store.error()) {
-    <div class="p-3 mb-3 border-round bg-red-100 text-red-700">
-      {{ store.error() }}
+<div class="supplier-details-page">
+  <app-page-header
+    title="Detalle del proveedor"
+    subtitle="Consulta la información registrada del proveedor."
+    [showBackButton]="true"
+    (back)="goBack()"
+  >
+    <div actions class="header-actions">
+      @if (supplier) {
+        <button type="button" class="edit-button" (click)="editSupplier()">
+          <i class="pi pi-pencil"></i>
+          <span>Editar proveedor</span>
+        </button>
+      }
     </div>
-  }
+  </app-page-header>
 
-  @if (store.loading()) {
-    <div class="flex justify-content-center p-4">
-      <i class="pi pi-spin pi-spinner text-3xl"></i>
-    </div>
-  }
-
-  @if (store.selectedSupplier() && !store.loading()) {
-    <p-card>
-      <ng-template pTemplate="title">
-        <div class="flex justify-content-between align-items-center">
-          <span>{{ store.selectedSupplier()?.razonSocial }}</span>
-          <p-tag
-            [value]="store.selectedSupplier()?.activo ? 'Activo' : 'Inactivo'"
-            [severity]="store.selectedSupplier()?.activo ? 'success' : 'danger'"
-          />
+  <main class="page-content">
+    @if (store.loading()) {
+      <div class="loading-state">
+        <i class="pi pi-spin pi-spinner"></i>
+        <span>Cargando información del proveedor...</span>
+      </div>
+    } @else if (store.error()) {
+      <section class="state-card">
+        <div class="state-card__icon state-card__icon--error">
+          <i class="pi pi-exclamation-triangle"></i>
         </div>
-      </ng-template>
-
-      <ng-template pTemplate="content">
-        <div class="grid">
-          <div class="col-12 md:col-6 mb-3">
-            <label class="block text-gray-500 text-sm mb-1">RUC</label>
-            <span class="block font-medium">{{ store.selectedSupplier()?.ruc }}</span>
-          </div>
-
-          <div class="col-12 md:col-6 mb-3">
-            <label class="block text-gray-500 text-sm mb-1">Contacto</label>
-            <span class="block font-medium">{{ store.selectedSupplier()?.contacto }}</span>
-          </div>
-
-          <div class="col-12 md:col-6 mb-3">
-            <label class="block text-gray-500 text-sm mb-1">Email</label>
-            <span class="block font-medium">{{ store.selectedSupplier()?.email }}</span>
-          </div>
-
-          <div class="col-12 md:col-6 mb-3">
-            <label class="block text-gray-500 text-sm mb-1">Teléfono</label>
-            <span class="block font-medium">{{ store.selectedSupplier()?.telefono }}</span>
-          </div>
-
-          <div class="col-12 mb-3">
-            <label class="block text-gray-500 text-sm mb-1">Dirección</label>
-            <span class="block font-medium">{{ store.selectedSupplier()?.direccion }}</span>
-          </div>
-
-          <div class="col-12 mb-3">
-            <label class="block text-gray-500 text-sm mb-1">Condiciones de Pago</label>
-            <span class="block font-medium">{{ store.selectedSupplier()?.condicionesPago }}</span>
-          </div>
+        <h2>No se pudo cargar el proveedor</h2>
+        <p>Verifica la conexión con el servidor e inténtalo nuevamente.</p>
+        <button type="button" class="retry-button" (click)="goBack()">Volver a proveedores</button>
+      </section>
+    } @else if (supplier) {
+      <section class="supplier-summary">
+        <div class="supplier-avatar">
+          {{ initials }}
         </div>
-      </ng-template>
 
-      <ng-template pTemplate="footer">
-        <div class="flex gap-2">
-          <p-button
-            label="Editar"
-            icon="pi pi-pencil"
-            (onClick)="onEdit()"
-          />
-          <p-button
-            label="Volver"
-            icon="pi pi-arrow-left"
-            severity="secondary"
-            [outlined]="true"
-            (onClick)="onBack()"
-          />
+        <div class="supplier-summary__info">
+          <div class="supplier-summary__name">
+            <h2>{{ supplier.razonSocial }}</h2>
+
+            <span [class]="supplier.activo ? 'chip-success' : 'chip-inactive'">
+              {{ supplier.activo ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+
+          <p class="supplier-summary__ruc">RUC {{ supplier.ruc }}</p>
+
+          @if (supplier.contacto) {
+            <p class="supplier-summary__contact">Contacto: {{ supplier.contacto }}</p>
+          }
         </div>
-      </ng-template>
-    </p-card>
-  }
+      </section>
+
+      <section class="details-grid">
+        <app-form-card
+          title="Identificación"
+          subtitle="Datos fiscales y comerciales del proveedor"
+          icon="pi pi-building"
+        >
+          <div class="details-list">
+            <div class="detail-item">
+              <span class="detail-item__label">RUC</span>
+              <span class="detail-item__value">{{ supplier.ruc || '-' }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-item__label">Razón social</span>
+              <span class="detail-item__value">{{ supplier.razonSocial || '-' }}</span>
+            </div>
+
+            <div class="detail-item detail-item--full">
+              <span class="detail-item__label">Condiciones de pago</span>
+              <span class="detail-item__value">{{ supplier.condicionesPago || '-' }}</span>
+            </div>
+          </div>
+        </app-form-card>
+
+        <app-form-card
+          title="Contacto"
+          subtitle="Medios de comunicación del proveedor"
+          icon="pi pi-phone"
+        >
+          <div class="details-list">
+            <div class="detail-item">
+              <span class="detail-item__label">Persona de contacto</span>
+              <span class="detail-item__value">{{ supplier.contacto || '-' }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-item__label">Teléfono</span>
+              <span class="detail-item__value">{{ supplier.telefono || '-' }}</span>
+            </div>
+
+            <div class="detail-item">
+              <span class="detail-item__label">Correo electrónico</span>
+              <span class="detail-item__value">{{ supplier.email || '-' }}</span>
+            </div>
+
+            <div class="detail-item detail-item--full">
+              <span class="detail-item__label">Dirección</span>
+              <span class="detail-item__value">{{ supplier.direccion || '-' }}</span>
+            </div>
+          </div>
+        </app-form-card>
+      </section>
+    }
+  </main>
 </div>

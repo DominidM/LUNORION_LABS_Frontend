@@ -1,8 +1,8 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbItem } from './breadcrumb-item.interface';
-
+import { BreadcrumbService } from './breadcrumb.service';
 
 @Component({
   selector: 'app-breadcrumb',
@@ -11,7 +11,14 @@ import { BreadcrumbItem } from './breadcrumb-item.interface';
   templateUrl: './breadcrumb.html',
   styleUrl: './breadcrumb.scss'
 })
-
 export class Breadcrumb {
-  items = input<BreadcrumbItem[]>([]);
+  private breadcrumbService = inject(BreadcrumbService);
+
+  itemsInput = input<BreadcrumbItem[]>([], { alias: 'items' });
+
+  items() {
+    return this.itemsInput().length > 0 
+      ? this.itemsInput() 
+      : this.breadcrumbService.breadcrumbs();
+  }
 }

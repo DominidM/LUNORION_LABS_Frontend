@@ -1,0 +1,57 @@
+.suppliers-page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.new-supplier-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  height: 40px;
+  padding: 0 var(--spacing-md);
+  background-color: var(--primary);
+  color: var(--on-primary);
+  border: none;
+  border-radius: var(--radius-default);
+  font: var(--text-label-md);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--primary) 85%, black);
+  }
+}
+
+.supplier-cell {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.supplier-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    color: var(--on-surface);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  span {
+    font: var(--text-label-sm);
+    color: var(--on-surface-variant);
+  }
+}
+
+.supplier-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
