@@ -96,9 +96,9 @@
   <app-confirmation-dialog
     [visible]="showDeactivateDialog"
     title="Desactivar proveedor"
-    [message]="'¿Estás seguro de que deseas desactivar a ' + (selectedSupplier?.razonSocial ?? '') + '?'"
+    [message]="'¿Estás seguro de que deseas desactivar a ' + (selected?.razonSocial ?? '') + '?'"
     type="warning"
-    (confirm)="deactivateSupplier()"
+    (confirm)="onConfirmDeactivate()"
     (cancel)="closeDeactivateDialog()"
   >
   </app-confirmation-dialog>

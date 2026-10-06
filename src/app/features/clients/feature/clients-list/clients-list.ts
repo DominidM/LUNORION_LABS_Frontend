@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+﻿import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
@@ -8,6 +8,7 @@ import { TableColumn } from '../../../../shared/ui/layout/data-table/data-table.
 import { ConfirmationDialog } from '../../../../shared/ui/layout/confirmation-dialog/confirmation-dialog';
 import { FilterBar } from '../../../../shared/ui/layout/filter-bar/filter-bar';
 import { FilterState } from '../../../../shared/ui/layout/filter-bar/filter-bar.interface';
+import { ListPage } from '../../../../shared/ui/layout/list-page/list-page';
 
 import { ClientHttpService } from '../../data-access/api/client-http.service';
 import { Client } from '../../domain/models/client';
@@ -26,7 +27,7 @@ import { ClientStore } from '../../data-access/state/client.store';
   templateUrl: './clients-list.html',
   styleUrl: './clients-list.scss'
 })
-export class ClientsList implements OnInit {
+export class ClientsList extends ListPage<Client> implements OnInit {
   private clientService = inject(ClientHttpService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
@@ -34,26 +35,19 @@ export class ClientsList implements OnInit {
 
   clients: Client[] = [];
   filteredClients: Client[] = [];
-  currentFilters: FilterState = {
+  override pageSize = 5;
+  override currentFilters: FilterState = {
     search: '',
     status: '',
     documentType: ''
   };
 
-  isLoading = false;
-  loadError = false;
-  currentPage = 1;
-  pageSize = 5;
-  showDeactivateDialog = false;
-  selectedClient: Client | null = null;
-  isDeactivating = false;
-
   tableColumns: TableColumn[] = [
     { field: 'cliente', header: 'Cliente', width: '28%' },
     { field: 'documento', header: 'Documento', width: '16%' },
-    { field: 'telefono', header: 'Teléfono', width: '14%' },
+    { field: 'telefono', header: 'TelÃ©fono', width: '14%' },
     { field: 'email', header: 'Email', width: '18%' },
-    { field: 'vehiculos', header: 'Vehículos', width: '8%', align: 'center' },
+    { field: 'vehiculos', header: 'VehÃ­culos', width: '8%', align: 'center' },
     { field: 'estado', header: 'Estado', width: '8%', align: 'center' },
     { field: 'acciones', header: 'Acciones', width: '8%', align: 'center' }
   ];
@@ -88,12 +82,11 @@ export class ClientsList implements OnInit {
     });
   }
 
-  onFilterChange(filters: FilterState): void {
-    this.currentFilters = filters;
+  protected override refresh(): void {
     this.applyFilters();
   }
 
-    applyFilters(): void {
+  applyFilters(): void {
     const search = (this.currentFilters.search || '').trim().toLowerCase();
     const status = this.currentFilters.status;
     const docType = this.currentFilters.documentType;
@@ -125,8 +118,6 @@ export class ClientsList implements OnInit {
     } else {
       this.filteredClients = result;
     }
-
-    this.currentPage = 1;
   }
 
   getInitials(nombres: string, apellidos: string): string {
@@ -137,51 +128,24 @@ export class ClientsList implements OnInit {
       .join('');
   }
 
-  onPageChanged(page: number): void {
-    this.currentPage = page;
-  }
-
-  onPageSizeChanged(size: number): void {
-    this.pageSize = size;
-    this.currentPage = 1;
-  }
-
   get paginatedClients(): Client[] {
     const start = (this.currentPage - 1) * this.pageSize;
     return this.filteredClients.slice(start, start + this.pageSize);
   }
 
-  openDeactivateDialog(client: Client): void {
-    this.selectedClient = client;
-    this.showDeactivateDialog = true;
-  }
-
-  closeDeactivateDialog(): void {
-    if (this.isDeactivating) return;
-    this.showDeactivateDialog = false;
-    this.selectedClient = null;
-  }
-
-  deactivateClient(): void {
-    if (!this.selectedClient || this.isDeactivating) return;
-
-    const clientId = this.selectedClient.id;
-    this.isDeactivating = true;
+  protected override performDeactivate(client: Client): void {
+    const clientId = client.id;
 
     this.clientService.deactivate(clientId).subscribe({
       next: () => {
         this.updateLocalClientStatus(clientId, false);
         this.clientStore.updateClientStatus(clientId, false);
-        this.isDeactivating = false;
-        this.showDeactivateDialog = false;
-        this.selectedClient = null;
+        this.finishDeactivate();
         this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al desactivar cliente:', err);
-        this.isDeactivating = false;
-        this.showDeactivateDialog = false;
-        this.selectedClient = null;
+        this.finishDeactivate();
         this.cdr.detectChanges();
       }
     });
@@ -296,9 +260,9 @@ export class ClientsList implements OnInit {
               <tr>
                 <th>Cliente</th>
                 <th>Documento</th>
-                <th>Teléfono</th>
+                <th>TelÃ©fono</th>
                 <th>Email</th>
-                <th style="text-align:center;">Vehículos</th>
+                <th style="text-align:center;">VehÃ­culos</th>
                 <th style="text-align:center;">Estado</th>
               </tr>
             </thead>

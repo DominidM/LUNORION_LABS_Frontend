@@ -126,15 +126,15 @@
     title="Desactivar cliente"
     [message]="
       '¿Estás seguro de que deseas desactivar a ' +
-      (selectedClient?.nombres ?? '') +
+      (selected?.nombres ?? '') +
       ' ' +
-      (selectedClient?.apellidos ?? '') +
+      (selected?.apellidos ?? '') +
       '?'
     "
     type="warning"
     confirmText="Desactivar"
     cancelText="Cancelar"
-    (confirm)="deactivateClient()"
+    (confirm)="onConfirmDeactivate()"
     (cancel)="closeDeactivateDialog()"
   >
   </app-confirmation-dialog>

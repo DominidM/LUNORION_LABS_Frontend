@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+﻿import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -7,7 +7,7 @@ import { DataTable } from '../../../../shared/ui/layout/data-table/data-table';
 import { TableColumn } from '../../../../shared/ui/layout/data-table/data-table.interface';
 import { ConfirmationDialog } from '../../../../shared/ui/layout/confirmation-dialog/confirmation-dialog';
 import { FilterBar } from '../../../../shared/ui/layout/filter-bar/filter-bar';
-import { FilterState } from '../../../../shared/ui/layout/filter-bar/filter-bar.interface';
+import { ListPage } from '../../../../shared/ui/layout/list-page/list-page';
 
 import { SupplierStore } from '../../data-access/state/supplier.store';
 import { SupplierHttpService } from '../../data-access/api/supplier-http.service';
@@ -22,36 +22,26 @@ import { Supplier } from '../../domain/models/supplier';
   templateUrl: './suppliers-list.html',
   styleUrls: ['./suppliers-list.scss'],
 })
-export class SuppliersList implements OnInit {
+export class SuppliersList extends ListPage<Supplier> implements OnInit {
   readonly store = inject(SupplierStore);
   private readonly repository = inject(SupplierRepository);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
 
-  currentFilters: FilterState = { search: '', status: '' };
-  isLoading = false;
-  loadError = false;
-  currentPage = 1;
-  pageSize = 10;
-
-  showDeactivateDialog = false;
-  selectedSupplier: Supplier | null = null;
-  isDeactivating = false;
-
   tableColumns: TableColumn[] = [
     { field: 'razonSocial', header: 'Proveedor', width: '26%' },
     { field: 'ruc', header: 'RUC', width: '12%' },
     { field: 'email', header: 'Email', width: '20%' },
-    { field: 'telefono', header: 'Teléfono', width: '13%' },
+    { field: 'telefono', header: 'TelÃ©fono', width: '13%' },
     { field: 'estado', header: 'Estado', width: '12%', align: 'center' },
     { field: 'acciones', header: 'Acciones', width: '17%', align: 'center' },
   ];
 
   ngOnInit(): void {
-    this.loadSuppliers();
+    this.refresh();
   }
 
-  loadSuppliers(): void {
+  protected override refresh(): void {
     this.isLoading = true;
     this.loadError = false;
     this.store.setLoading(true);
@@ -84,23 +74,6 @@ export class SuppliersList implements OnInit {
       });
   }
 
-  onFilterChange(filters: FilterState): void {
-    this.currentFilters = filters;
-    this.currentPage = 1;
-    this.loadSuppliers();
-  }
-
-  onPageChanged(page: number): void {
-    this.currentPage = page;
-    this.loadSuppliers();
-  }
-
-  onPageSizeChanged(size: number): void {
-    this.pageSize = size;
-    this.currentPage = 1;
-    this.loadSuppliers();
-  }
-
   onNew(): void {
     this.router.navigate(['/dashboard/suppliers/new']);
   }
@@ -113,43 +86,17 @@ export class SuppliersList implements OnInit {
     this.router.navigate(['/dashboard/suppliers', id, 'edit']);
   }
 
-  openDeactivateDialog(supplier: Supplier): void {
-    this.selectedSupplier = supplier;
-    this.showDeactivateDialog = true;
-  }
-
-  closeDeactivateDialog(): void {
-    if (this.isDeactivating) return;
-    this.showDeactivateDialog = false;
-    this.selectedSupplier = null;
-  }
-
-  deactivateSupplier(): void {
-    if (!this.selectedSupplier || this.isDeactivating) return;
-
-    const supplierId = this.selectedSupplier.id;
-    this.isDeactivating = true;
-
-    this.repository.deactivate(supplierId).subscribe({
+  protected override performDeactivate(supplier: Supplier): void {
+    this.repository.deactivate(supplier.id).subscribe({
       next: () => {
-        this.isDeactivating = false;
-        this.showDeactivateDialog = false;
-        this.selectedSupplier = null;
-        this.loadSuppliers();
+        this.finishDeactivate();
+        this.refresh();
       },
       error: (err) => {
-        this.isDeactivating = false;
-        this.showDeactivateDialog = false;
-        this.selectedSupplier = null;
+        this.finishDeactivate();
         this.store.setError(err.error?.message || 'Error al desactivar proveedor');
         this.cdr.detectChanges();
       },
     });
-  }
-
-  private mapStatus(status: string): string | undefined {
-    if (status === 'active') return 'activo';
-    if (status === 'inactive') return 'inactivo';
-    return undefined;
   }
 }
